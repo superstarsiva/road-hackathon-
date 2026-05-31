@@ -2,4 +2,6 @@ node_modules/
 portal.db
 *.db
 .env
+.env.local
+.env.production
 db.json
