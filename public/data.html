@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Road Data | Road Infrastructure Portal</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                  "on-tertiary": "#ffffff",
+                  "primary-fixed": "#d6e3ff",
+                  "on-primary-fixed-variant": "#2d476f",
+                  "on-tertiary-container": "#c6955e",
+                  "on-tertiary-fixed": "#2b1700",
+                  "surface-tint": "#455f88",
+                  "on-secondary-container": "#586377",
+                  "surface-container-lowest": "#ffffff",
+                  "surface-alt": "#EDF2F7",
+                  "on-error-container": "#93000a",
+                  "surface-dim": "#d7dadc",
+                  "inverse-on-surface": "#eef1f3",
+                  "status-success": "#2F855A",
+                  "outline-variant": "#c4c6cf",
+                  "background": "#f7fafc",
+                  "on-secondary": "#ffffff",
+                  "tertiary-fixed-dim": "#f2bc82",
+                  "surface-bright": "#f7fafc",
+                  "on-surface-variant": "#43474e",
+                  "inverse-primary": "#adc7f7",
+                  "heritage-red": "#E31E2E",
+                  "primary-fixed-dim": "#adc7f7",
+                  "error-container": "#ffdad6",
+                  "secondary": "#545f72",
+                  "outline": "#74777f",
+                  "tertiary": "#321b00",
+                  "on-secondary-fixed-variant": "#3c475a",
+                  "surface-variant": "#e0e3e5",
+                  "on-background": "#181c1e",
+                  "surface": "#f7fafc",
+                  "secondary-container": "#d5e0f7",
+                  "tertiary-fixed": "#ffddba",
+                  "surface-container": "#ebeef0",
+                  "on-tertiary-fixed-variant": "#633f0f",
+                  "surface-container-high": "#e5e9eb",
+                  "on-surface": "#181c1e",
+                  "on-secondary-fixed": "#111c2c",
+                  "on-primary-container": "#86a0cd",
+                  "error": "#ba1a1a",
+                  "surface-container-low": "#f1f4f6",
+                  "status-warning": "#C05621",
+                  "secondary-fixed-dim": "#bcc7dd",
+                  "surface-container-highest": "#e0e3e5",
+                  "inverse-surface": "#2d3133",
+                  "primary-container": "#1a365d",
+                  "tertiary-container": "#4f2e00",
+                  "secondary-fixed": "#d8e3fa",
+                  "ink-black": "#090909",
+                  "on-error": "#ffffff",
+                  "on-primary-fixed": "#001b3c",
+                  "on-primary": "#ffffff",
+                  "primary": "#002045"
+              },
+              "borderRadius": {
+                  "DEFAULT": "0.125rem",
+                  "lg": "0.25rem",
+                  "xl": "0.5rem",
+                  "full": "0.75rem"
+              },
+              "spacing": {
+                  "container-max": "1280px",
+                  "margin-mobile": "16px",
+                  "margin-desktop": "40px",
+                  "stack-sm": "8px",
+                  "gutter": "24px",
+                  "stack-md": "16px",
+                  "stack-lg": "32px",
+                  "section-gap": "64px"
+              },
+              "fontFamily": {
+                  "label-md": ["Public Sans"],
+                  "headline-md": ["Public Sans"],
+                  "label-bold": ["Public Sans"],
+                  "headline-xl": ["Public Sans"],
+                  "headline-lg-mobile": ["Public Sans"],
+                  "body-lg": ["Public Sans"],
+                  "body-md": ["Public Sans"],
+                  "body-sm": ["Public Sans"],
+                  "headline-lg": ["Public Sans"]
+              },
+              "fontSize": {
+                  "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                  "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                  "label-bold": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                  "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                  "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                  "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                  "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                  "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                  "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+    <style>
+        body { background-color: #f7fafc; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .table-scroll::-webkit-scrollbar { height: 8px; }
+        .table-scroll::-webkit-scrollbar-track { background: #f1f4f6; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #c4c6cf; border-radius: 4px; }
+    </style>
+</head>
+<body class="font-body-md text-on-background">
+    <!-- TopNavBar -->
+    <nav class="bg-white border-b border-outline-variant fixed w-full top-0 z-50">
+        <div class="flex justify-between items-center h-16 px-margin-desktop max-w-container-max mx-auto">
+            <div class="font-headline-md text-headline-md text-primary uppercase tracking-tight">
+                Road Infrastructure Portal
+            </div>
+            <div class="hidden md:flex items-center gap-stack-lg h-full">
+                <a class="text-secondary hover:text-primary transition-colors font-body-md text-body-md" href="/">Home</a>
+                <a class="text-secondary hover:text-primary transition-colors font-body-md text-body-md" href="/complaint">Road Complaint</a>
+                <a class="text-primary border-b-2 border-primary pb-1 font-bold font-body-md text-body-md" href="/data">Road Data</a>
+                <a class="text-secondary hover:text-primary transition-colors font-body-md text-body-md" href="/live">Live Quality Check</a>
+            </div>
+            <div class="flex items-center gap-stack-md">
+                <button class="bg-primary text-white px-stack-lg py-2 rounded font-label-bold text-label-bold hover:opacity-90 transition-all uppercase" onclick="location.href='/complaint'">
+                    Report Pothole
+                </button>
+            </div>
+        </div>
+    </nav>
+    <main class="pt-24 pb-section-gap px-margin-desktop max-w-container-max mx-auto">
+        <!-- Header Section -->
+        <header class="mb-stack-lg">
+            <h1 class="font-headline-xl text-headline-xl text-primary mb-stack-sm">Infrastructure Inventory</h1>
+            <p class="font-body-lg text-body-lg text-secondary max-w-2xl">
+                Comprehensive dataset of national, state, and district road networks in Chennai, Tamil Nadu — including real-time quality scores, financial allocations, and maintenance cycles.
+            </p>
+        </header>
+
+        <!-- Search and Filter Bar -->
+        <section class="bg-white border border-outline-variant p-stack-md mb-stack-lg flex flex-col md:flex-row gap-gutter items-center justify-between">
+            <div class="relative w-full md:max-w-md">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+                <input id="search-input" class="w-full pl-10 pr-4 py-2 border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent rounded font-body-sm text-body-sm outline-none" placeholder="Search by name, ID or contractor..." type="text"/>
+            </div>
+            <div class="flex flex-wrap gap-stack-md w-full md:w-auto">
+                <div class="flex items-center gap-2">
+                    <label class="font-label-bold text-label-bold uppercase text-secondary">Type:</label>
+                    <select id="type-filter" class="border border-outline-variant px-3 py-2 font-body-sm text-body-sm focus:ring-primary focus:border-primary rounded">
+                        <option value="ALL">All Types</option>
+                        <option value="NH">National Highway (NH)</option>
+                        <option value="SH">State Highway (SH)</option>
+                        <option value="MDR">Major District Road (MDR)</option>
+                        <option value="Citizen">Citizen Report</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="font-label-bold text-label-bold uppercase text-secondary">Min Quality:</label>
+                    <select id="quality-filter" class="border border-outline-variant px-3 py-2 font-body-sm text-body-sm focus:ring-primary focus:border-primary rounded">
+                        <option value="ALL">Any Score</option>
+                        <option value="90">90+ Exceptional</option>
+                        <option value="70">70+ Standard</option>
+                        <option value="50">Below 50 (Critical)</option>
+                    </select>
+                </div>
+                <button onclick="exportCSV()" class="bg-white border border-primary text-primary px-stack-lg py-2 font-label-bold text-label-bold hover:bg-surface-container-low transition-colors">
+                    EXPORT CSV
+                </button>
+            </div>
+        </section>
+
+        <!-- Stats Overview (Asymmetric Layout) -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-stack-lg">
+            <div class="md:col-span-1 bg-primary text-white p-stack-lg border border-primary">
+                <span class="font-label-bold text-label-bold uppercase opacity-80">Surveyed Network</span>
+                <div class="font-headline-lg text-headline-lg mt-stack-sm" id="stats-total-km">12,842 KM</div>
+                <div class="text-status-success font-label-bold text-label-bold mt-2">▲ Live Sync Enabled</div>
+            </div>
+            <div class="md:col-span-1 bg-white border border-outline-variant p-stack-lg">
+                <span class="font-label-bold text-label-bold uppercase text-secondary">Avg Quality Score</span>
+                <div class="font-headline-lg text-headline-lg text-primary mt-stack-sm" id="stats-avg-score">78.4 <small class="text-body-sm font-normal">/100</small></div>
+                <div class="w-full bg-surface-container-low h-1.5 mt-4">
+                    <div id="stats-score-bar" class="bg-status-success h-full" style="width: 78.4%"></div>
+                </div>
+            </div>
+            <div class="md:col-span-2 bg-white border border-outline-variant p-stack-lg overflow-hidden relative">
+                <div class="z-10 relative">
+                    <span class="font-label-bold text-label-bold uppercase text-secondary">Budget Utilization</span>
+                    <div class="font-headline-lg text-headline-lg text-primary mt-stack-sm" id="stats-budget">₹4,200 Cr <span class="text-body-md font-normal text-secondary">Spent of ₹5,800 Cr</span></div>
+                    <p class="font-body-sm text-body-sm text-secondary mt-2">Total active assets loaded persistently in local ledger: <strong id="total-assets-count">4</strong></p>
+                </div>
+                <div class="absolute right-0 bottom-0 opacity-10 p-2">
+                    <span class="material-symbols-outlined text-[80px]">payments</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="bg-white border border-outline-variant overflow-hidden">
+            <div class="table-scroll overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-surface-container text-primary font-label-bold text-label-bold uppercase tracking-wider text-xs">
+                            <th class="px-6 py-4 border-b border-outline-variant whitespace-nowrap">Asset ID</th>
+                            <th class="px-6 py-4 border-b border-outline-variant whitespace-nowrap">Asset/Road Name</th>
+                            <th class="px-6 py-4 border-b border-outline-variant whitespace-nowrap">Type</th>
+                            <th class="px-6 py-4 border-b border-outline-variant whitespace-nowrap">Contractor / Reporter</th>
+                            <th class="px-6 py-4 border-b border-outline-variant whitespace-nowrap">Last Inspection</th>
+                            <th class="px-6 py-4 border-b border-outline-variant whitespace-nowrap">Budget Sanctioned</th>
+                            <th class="px-6 py-4 border-b border-outline-variant whitespace-nowrap">Budget Spent</th>
+                            <th class="px-6 py-4 border-b border-outline-variant whitespace-nowrap text-center">Quality / Status</th>
+                            <th class="px-6 py-4 border-b border-outline-variant whitespace-nowrap">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="font-body-sm text-body-sm" id="inventory-table-body">
+                        <!-- Dynamic compilation of Roads and Complaints -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            <div class="px-margin-desktop py-4 bg-surface-container flex items-center justify-between">
+                <span class="text-body-sm text-secondary" id="showing-entries-label">Showing 0 entries</span>
+                <div class="flex gap-2">
+                    <button class="w-8 h-8 flex items-center justify-center border border-outline-variant bg-white text-secondary hover:bg-primary-container hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+                    </button>
+                    <button class="w-8 h-8 flex items-center justify-center bg-primary text-white font-bold text-body-sm">1</button>
+                    <button class="w-8 h-8 flex items-center justify-center border border-outline-variant bg-white text-secondary hover:bg-primary-container hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Inspector Modal -->
+        <div id="inspector-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeInspector()"></div>
+            <div class="bg-white border border-outline-variant p-8 max-w-lg w-full relative z-10 shadow-2xl rounded-lg">
+                <div class="flex justify-between items-start border-b border-outline-variant pb-4 mb-4">
+                    <div>
+                        <h3 class="font-headline-md text-lg text-primary" id="modal-asset-name">Road Name</h3>
+                        <p class="font-mono text-xs text-secondary mt-1" id="modal-asset-id">Asset ID: NH-44-A</p>
+                    </div>
+                    <button class="text-secondary hover:text-primary p-1" onclick="closeInspector()">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="space-y-4 text-sm" id="modal-content-details">
+                    <!-- Dynamic details populated from javascript -->
+                </div>
+                <div class="pt-6 border-t border-outline-variant mt-6 flex justify-end gap-3 select-none">
+                    <button id="modal-pdf-btn" class="px-6 py-2 bg-white border border-primary text-primary font-label-bold hover:bg-surface-container-low transition-colors uppercase tracking-wider text-xs">
+                        Download PDF Audit
+                    </button>
+                    <button onclick="closeInspector()" class="px-6 py-2 bg-primary text-white font-label-bold hover:bg-primary-container transition-colors uppercase tracking-wider text-xs">
+                        Dismiss
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-primary w-full py-stack-lg px-margin-desktop mt-section-gap text-on-primary">
+        <div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-stack-md">
+            <div class="font-label-bold text-label-bold">
+                ROAD INFRASTRUCTURE PORTAL
+            </div>
+            <div class="flex gap-gutter text-body-sm text-primary-fixed">
+                <a class="hover:text-white underline" href="#">Emergency Contacts</a>
+                <a class="hover:text-white underline" href="#">Privacy Policy</a>
+                <a class="hover:text-white underline" href="#">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Frontend logic fetching from Express backend APIs -->
+    <script>
+        let roads = [];
+        let complaints = [];
+        let compiledAssets = [];
+        let currentSelectedAsset = null;
+
+        // Load dynamic data
+        function loadDashboardData() {
+            Promise.all([
+                fetch('/api/roads').then(res => res.json()),
+                fetch('/api/complaints').then(res => res.json())
+            ])
+            .then(([roadsData, complaintsData]) => {
+                roads = roadsData;
+                complaints = complaintsData;
+                compileAssets();
+                renderTable();
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Database synchronization failed. Showing fallback local data.');
+            });
+        }
+
+        // Consolidated asset list compiler
+        function compileAssets() {
+            compiledAssets = [];
+            
+            // Format road items
+            roads.forEach(road => {
+                compiledAssets.push({
+                    id: road.id,
+                    name: road.name,
+                    type: road.type,
+                    contractor: road.contractor,
+                    lastInspection: road.lastRelaying,
+                    budgetSanctioned: road.budgetSanctioned,
+                    budgetSpent: road.budgetSpent,
+                    authority: road.authority,
+                    score: road.qualityScore,
+                    isComplaint: false,
+                    temp: road.surfaceTemp,
+                    vibration: road.vibration,
+                    flow: road.flow
+                });
+            });
+
+            // Format complaint items
+            complaints.forEach(c => {
+                let scoreText = c.status;
+                compiledAssets.push({
+                    id: c.id,
+                    name: c.roadName,
+                    type: 'Citizen',
+                    contractor: c.issueType,
+                    lastInspection: c.date,
+                    budgetSanctioned: '₹0',
+                    budgetSpent: '₹0',
+                    authority: c.severity + ' Severity',
+                    score: c.severity === 'High' ? 45 : c.severity === 'Med' ? 65 : 85, // Map severity to quality score placeholder
+                    complaintStatus: c.status,
+                    isComplaint: true,
+                    description: c.description,
+                    latitude: c.latitude,
+                    longitude: c.longitude
+                });
+            });
+
+            // Update statistics
+            document.getElementById('total-assets-count').innerText = compiledAssets.length;
+            
+            // Compute real averages
+            const validScores = compiledAssets.filter(a => !a.isComplaint || a.score);
+            if (validScores.length > 0) {
+                const avg = (validScores.reduce((acc, a) => acc + a.score, 0) / validScores.length).toFixed(1);
+                document.getElementById('stats-avg-score').innerHTML = `${avg} <small class="text-body-sm font-normal">/100</small>`;
+                document.getElementById('stats-score-bar').style.width = `${avg}%`;
+            }
+        }
+
+        // Render Table dynamically with client-side filter capability
+        function renderTable() {
+            const tbody = document.getElementById('inventory-table-body');
+            tbody.innerHTML = '';
+
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+            const typeFilter = document.getElementById('type-filter').value;
+            const qualityFilter = document.getElementById('quality-filter').value;
+
+            // Apply filters
+            const filteredAssets = compiledAssets.filter(asset => {
+                // Search query filter
+                const queryMatch = asset.name.toLowerCase().includes(searchVal) ||
+                                   asset.id.toLowerCase().includes(searchVal) ||
+                                   asset.contractor.toLowerCase().includes(searchVal);
+                if (!queryMatch) return false;
+
+                // Type filter
+                if (typeFilter !== 'ALL') {
+                    if (typeFilter === 'Citizen' && !asset.isComplaint) return false;
+                    if (typeFilter !== 'Citizen' && (asset.isComplaint || asset.type !== typeFilter)) return false;
+                }
+
+                // Quality rating filter
+                if (qualityFilter !== 'ALL') {
+                    const min = parseInt(qualityFilter);
+                    if (min === 90 && asset.score < 90) return false;
+                    if (min === 70 && (asset.score < 70 || asset.score >= 90)) return false;
+                    if (min === 50 && asset.score >= 50) return false;
+                }
+
+                return true;
+            });
+
+            // Populate table rows
+            filteredAssets.forEach(asset => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-surface-alt transition-colors';
+                if (asset.isComplaint) {
+                    tr.className += ' bg-amber-50/40';
+                }
+
+                // Type Badge
+                let typeBadge = `<span class="bg-outline-variant text-on-surface px-2 py-0.5 text-[10px] font-bold uppercase rounded">${asset.type}</span>`;
+                if (asset.type === 'NH') {
+                    typeBadge = `<span class="bg-primary-container text-white px-2 py-0.5 text-[10px] font-bold uppercase rounded">${asset.type}</span>`;
+                } else if (asset.type === 'SH') {
+                    typeBadge = `<span class="bg-secondary-container text-primary px-2 py-0.5 text-[10px] font-bold uppercase rounded">${asset.type}</span>`;
+                } else if (asset.isComplaint) {
+                    typeBadge = `<span class="bg-heritage-red text-white px-2 py-0.5 text-[10px] font-bold uppercase rounded">Citizen</span>`;
+                }
+
+                // Score / Status rating badge
+                let scoreBadge = '';
+                if (asset.isComplaint) {
+                    let statusColor = 'text-status-warning bg-status-warning/10';
+                    if (asset.complaintStatus === 'Resolved') statusColor = 'text-status-success bg-status-success/10';
+                    scoreBadge = `<span class="inline-block px-3 py-1 ${statusColor} font-bold rounded text-xs select-none uppercase">${asset.complaintStatus}</span>`;
+                } else {
+                    let ratingColor = 'bg-status-success/10 text-status-success';
+                    if (asset.score < 50) ratingColor = 'bg-error-container text-error';
+                    else if (asset.score < 85) ratingColor = 'bg-status-warning/10 text-status-warning';
+                    scoreBadge = `<span class="inline-block px-3 py-1 ${ratingColor} font-bold rounded text-xs select-none">${asset.score}</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 border-b border-outline-variant font-bold text-primary font-mono">${asset.id}</td>
+                    <td class="px-6 py-4 border-b border-outline-variant">${asset.name}</td>
+                    <td class="px-6 py-4 border-b border-outline-variant">${typeBadge}</td>
+                    <td class="px-6 py-4 border-b border-outline-variant font-medium text-secondary">${asset.contractor}</td>
+                    <td class="px-6 py-4 border-b border-outline-variant text-secondary">${asset.lastInspection}</td>
+                    <td class="px-6 py-4 border-b border-outline-variant">${asset.budgetSanctioned}</td>
+                    <td class="px-6 py-4 border-b border-outline-variant">${asset.budgetSpent}</td>
+                    <td class="px-6 py-4 border-b border-outline-variant text-center">${scoreBadge}</td>
+                    <td class="px-6 py-4 border-b border-outline-variant">
+                        <button onclick="inspectAsset('${asset.id}')" class="text-primary hover:underline font-label-bold text-xs uppercase tracking-wide">Details</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Update count
+            document.getElementById('showing-entries-label').innerText = `Showing ${filteredAssets.length} of ${compiledAssets.length} entries`;
+        }
+
+        // Detail Inspector Modal Populate
+        function inspectAsset(assetId) {
+            const asset = compiledAssets.find(a => a.id === assetId);
+            if (!asset) return;
+            currentSelectedAsset = asset;
+
+            document.getElementById('modal-asset-name').innerText = asset.name;
+            document.getElementById('modal-asset-id').innerText = `Asset Reference Code: ${asset.id}`;
+
+            const detailsBody = document.getElementById('modal-content-details');
+            if (asset.isComplaint) {
+                detailsBody.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4 border-b border-outline-variant pb-4">
+                        <div>
+                            <span class="text-xs text-secondary uppercase font-bold block mb-1">Issue Type</span>
+                            <span class="text-sm font-semibold text-heritage-red">${asset.contractor}</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-secondary uppercase font-bold block mb-1">Status</span>
+                            <span class="text-sm font-semibold text-primary uppercase bg-primary-fixed/20 px-2 py-0.5 rounded">${asset.complaintStatus}</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 border-b border-outline-variant pb-4 mt-4">
+                        <div>
+                            <span class="text-xs text-secondary uppercase font-bold block mb-1">Reported Date</span>
+                            <span class="text-sm font-semibold">${asset.lastInspection}</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-secondary uppercase font-bold block mb-1">Priority / Severity</span>
+                            <span class="text-sm font-semibold text-status-warning">${asset.authority}</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 border-b border-outline-variant pb-4">
+                        <span class="text-xs text-secondary uppercase font-bold block mb-1">Coordinates Map Pin</span>
+                        <p class="font-mono text-sm">${(asset.latitude != null && asset.longitude != null) ? `latitude: ${Number(asset.latitude).toFixed(5)}, longitude: ${Number(asset.longitude).toFixed(5)}` : 'Coordinates not recorded'}</p>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-xs text-secondary uppercase font-bold block mb-1">Citizen Narrative Description</span>
+                        <p class="text-sm leading-relaxed p-3 bg-surface-container-low border border-outline-variant rounded">${asset.description}</p>
+                    </div>
+                `;
+            } else {
+                detailsBody.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4 border-b border-outline-variant pb-4">
+                        <div>
+                            <span class="text-xs text-secondary uppercase font-bold block mb-1">Infrastructure Class</span>
+                            <span class="text-sm font-semibold text-primary">${asset.type === 'NH' ? 'National Highway' : asset.type === 'SH' ? 'State Highway' : 'Major District Road'}</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-secondary uppercase font-bold block mb-1">Current Quality Rating</span>
+                            <span class="text-sm font-bold text-status-success">${asset.score}/100</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 border-b border-outline-variant pb-4 mt-4">
+                        <div>
+                            <span class="text-xs text-secondary uppercase font-bold block mb-1">Contractor</span>
+                            <span class="text-sm font-semibold">${asset.contractor}</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-secondary uppercase font-bold block mb-1">Supervising Authority</span>
+                            <span class="text-sm font-semibold">${asset.authority}</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 border-b border-outline-variant pb-4 mt-4">
+                        <div>
+                            <span class="text-xs text-secondary uppercase font-bold block mb-1">Budget Allocation</span>
+                            <span class="text-sm font-semibold">${asset.budgetSanctioned}</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-secondary uppercase font-bold block mb-1">Actual Expenditure</span>
+                            <span class="text-sm font-semibold text-status-success">${asset.budgetSpent}</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mt-4 bg-surface-container-low p-3 border border-outline-variant rounded">
+                        <div class="text-center">
+                            <span class="text-[10px] text-secondary font-bold uppercase block mb-1">Avg Temperature</span>
+                            <span class="text-xs font-semibold text-status-warning">${asset.temp}°C</span>
+                        </div>
+                        <div class="text-center border-l border-outline-variant">
+                            <span class="text-[10px] text-secondary font-bold uppercase block mb-1">IoT Vibration</span>
+                            <span class="text-xs font-semibold">${asset.vibration} m/s²</span>
+                        </div>
+                        <div class="text-center border-l border-outline-variant">
+                            <span class="text-[10px] text-secondary font-bold uppercase block mb-1">Traffic flow</span>
+                            <span class="text-xs font-semibold text-status-success">${asset.flow}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('inspector-modal').classList.remove('hidden');
+        }
+
+        function closeInspector() {
+            document.getElementById('inspector-modal').classList.add('hidden');
+        }
+
+        // Filter event listeners
+        document.getElementById('search-input').addEventListener('input', renderTable);
+        document.getElementById('type-filter').addEventListener('change', renderTable);
+        document.getElementById('quality-filter').addEventListener('change', renderTable);
+
+        // CSV Exporter Simulation
+        function exportCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,Asset ID,Asset Name,Type,Contractor / Reporter,Last Inspection,Budget Sanctioned,Budget Spent,Quality Score\n";
+            compiledAssets.forEach(a => {
+                csvContent += `"${a.id}","${a.name}","${a.type}","${a.contractor}","${a.lastInspection}","${a.budgetSanctioned}","${a.budgetSpent}",${a.score}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "infrastructure_inventory.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Generate beautiful printable PDF Audit Report for specific asset
+        document.getElementById('modal-pdf-btn').addEventListener('click', () => {
+            if (!currentSelectedAsset) return;
+            
+            const asset = currentSelectedAsset;
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                alert("Please allow popups to download the PDF report.");
+                return;
+            }
+            
+            let assetDetailsHTML = '';
+            if (asset.isComplaint) {
+                assetDetailsHTML = `
+                    <tr><th>Issue Category</th><td>${asset.contractor}</td></tr>
+                    <tr><th>Current Status</th><td>${asset.complaintStatus}</td></tr>
+                    <tr><th>Report Date</th><td>${asset.lastInspection}</td></tr>
+                    <tr><th>Priority Severity</th><td>${asset.authority}</td></tr>
+                    <tr><th>GPS Coordinates</th><td>${(asset.latitude != null && asset.longitude != null) ? `Lat: ${Number(asset.latitude).toFixed(5)}, Lng: ${Number(asset.longitude).toFixed(5)}` : 'Not recorded'}</td></tr>
+                    <tr><th>Narrative Description</th><td>${asset.description}</td></tr>
+                `;
+            } else {
+                assetDetailsHTML = `
+                    <tr><th>Infrastructure Class</th><td>${asset.type === 'NH' ? 'National Highway' : asset.type === 'SH' ? 'State Highway' : 'Major District Road'}</td></tr>
+                    <tr><th>Quality Health Score</th><td>${asset.score} / 100</td></tr>
+                    <tr><th>Assigned Contractor</th><td>${asset.contractor}</td></tr>
+                    <tr><th>Supervising Authority</th><td>${asset.authority}</td></tr>
+                    <tr><th>Sanctioned Budget</th><td>${asset.budgetSanctioned}</td></tr>
+                    <tr><th>Actual Expenditure</th><td>${asset.budgetSpent}</td></tr>
+                    <tr><th>Telemetry Surface Temp</th><td>${asset.temp}°C</td></tr>
+                    <tr><th>IoT Vibration level</th><td>${asset.vibration} m/s²</td></tr>
+                    <tr><th>Density Flow Rating</th><td>${asset.flow}</td></tr>
+                `;
+            }
+
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Infrastructure Audit - ${asset.id}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+                    <style>
+                        body { font-family: 'Public Sans', sans-serif; color: #181c1e; padding: 40px; line-height: 1.6; }
+                        .header { border-bottom: 3px double #002045; padding-bottom: 20px; margin-bottom: 30px; text-align: center; }
+                        .agency { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: #74777f; text-transform: uppercase; margin-bottom: 5px; }
+                        .title { font-size: 24px; font-weight: 800; color: #002045; text-transform: uppercase; margin: 0; }
+                        .meta-info { margin-top: 10px; font-size: 11px; color: #74777f; font-family: monospace; }
+                        .section-title { font-size: 13px; font-weight: 700; color: #002045; text-transform: uppercase; border-bottom: 1px solid #c4c6cf; padding-bottom: 6px; margin-top: 35px; margin-bottom: 15px; letter-spacing: 0.05em; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 13px; }
+                        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ebeef0; }
+                        th { width: 35%; font-weight: 700; color: #545f72; background-color: #f1f4f6; text-transform: uppercase; font-size: 10px; letter-spacing: 0.05em; }
+                        td { font-weight: 500; color: #181c1e; }
+                        .footer { margin-top: 60px; font-size: 11px; color: #74777f; border-top: 1px solid #c4c6cf; padding-top: 15px; text-align: center; }
+                        .stamp { font-size: 10px; border: 2px solid #2F855A; color: #2F855A; padding: 6px 12px; font-weight: bold; text-transform: uppercase; display: inline-block; border-radius: 4px; letter-spacing: 0.1em; transform: rotate(-3deg); margin-top: 20px; }
+                        .sign-box { float: right; border-top: 1px solid #74777f; width: 200px; text-align: center; margin-top: 40px; font-size: 11px; font-weight: bold; color: #545f72; padding-top: 5px; }
+                        @media print {
+                            body { padding: 0; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="agency">Department of Transportation & Infrastructure</div>
+                        <div class="title">Official Infrastructure Audit Report</div>
+                        <div class="meta-info">Document Ref: AUD-${asset.id}-${new Date().getFullYear()} • Generated: ${new Date().toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'})}</div>
+                    </div>
+                    
+                    <div class="section-title">Asset Inventory Specifications</div>
+                    <table>
+                        <tr><th>Asset / Reference Code</th><td style="font-family: monospace; font-weight: bold; font-size: 14px; color: #002045;">${asset.id}</td></tr>
+                        <tr><th>Target Road / Location</th><td style="font-weight: bold;">${asset.name}</td></tr>
+                        ${assetDetailsHTML}
+                    </table>
+
+                    <div style="margin-top: 50px; overflow: hidden;">
+                        <div class="stamp">Approved Relational SQL Record</div>
+                        <div class="sign-box">Authorized Inspector Seal</div>
+                    </div>
+
+                    <div class="footer">
+                        This is an official public record generated from the Tamil Nadu Highways & Minor Ports Department portal. All details are subject to state-wide transparency provisions under the Government of Tamil Nadu.
+                    </div>
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        });
+
+        // Initialize table load on page ready
+        window.onload = loadDashboardData;
+    </script>
+
+    <!-- AI Assistant Floating Panel -->
+    <div class="fixed bottom-8 right-8 z-[100] flex flex-col items-end" id="ai-chat-container">
+        <div class="hidden mb-4 w-[380px] h-[500px] bg-white/95 backdrop-blur-md border border-outline-variant rounded-xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform origin-bottom-right" id="chat-window">
+            <div class="bg-primary p-4 flex items-center justify-between text-on-primary">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px] text-white">smart_toy</span>
+                    </div>
+                    <div>
+                        <p class="font-label-md leading-none text-white font-bold">Road Support AI</p>
+                        <div class="flex items-center gap-1.5 mt-1">
+                            <span class="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+                            <span class="text-[10px] text-white/70 uppercase tracking-wider">Online</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="material-symbols-outlined hover:bg-white/10 p-1 rounded-full text-white" id="close-chat">close</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-surface-container-lowest" id="chat-messages">
+                <div class="flex gap-2 max-w-[85%]">
+                    <div class="w-8 h-8 bg-primary/10 text-primary rounded-full flex-shrink-0 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">smart_toy</span>
+                    </div>
+                    <div class="bg-surface-container-low p-3 rounded-2xl rounded-tl-none border border-outline-variant shadow-sm text-xs">
+                        <p class="text-body-md text-on-surface">Hello! I'm your Civic Assistant. I can check incident statuses in real-time, inspect highway quality scores, and help you search the road inventory database. How can I help you today?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-outline-variant bg-white">
+                <div class="flex gap-2">
+                    <input class="w-full px-4 py-2.5 bg-surface-container-low border-none rounded-lg text-xs focus:ring-2 focus:ring-primary/20 outline-none" id="chat-input" placeholder="Ask about road complaints or road quality..." type="text"/>
+                    <button class="text-primary hover:scale-110 transition-transform p-2" id="send-chat-btn">
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <button class="w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-all text-white" id="chat-toggle-btn">
+            <span class="material-symbols-outlined text-[28px]" id="chat-icon">forum</span>
+        </button>
+    </div>
+
+    <script>
+        const chatToggle = document.getElementById('chat-toggle-btn');
+        const chatWindow = document.getElementById('chat-window');
+        const closeChat = document.getElementById('close-chat');
+        const chatIcon = document.getElementById('chat-icon');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-chat-btn');
+
+        chatToggle.addEventListener('click', () => {
+            const isHidden = chatWindow.classList.contains('hidden');
+            if (isHidden) {
+                chatWindow.classList.remove('hidden');
+                chatIcon.textContent = 'close';
+            } else {
+                chatWindow.classList.add('hidden');
+                chatIcon.textContent = 'forum';
+            }
+        });
+
+        closeChat.addEventListener('click', () => {
+            chatWindow.classList.add('hidden');
+            chatIcon.textContent = 'forum';
+        });
+
+        function appendMessage(text, isUser) {
+            let cleanResponse = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code class="bg-primary/5 px-1 rounded font-mono font-bold">$1</code>')
+                .replace(/\n/g, '<br/>');
+
+            const wrapper = document.createElement('div');
+            wrapper.className = isUser ? 'flex flex-col items-end gap-1 w-full' : 'flex gap-2 max-w-[85%]';
+            
+            if (isUser) {
+                wrapper.innerHTML = `
+                    <div class="bg-primary text-white p-3 rounded-tl-xl rounded-b-xl max-w-[85%] self-end">
+                        <p class="font-body-sm text-xs leading-relaxed">${text}</p>
+                    </div>
+                `;
+            } else {
+                wrapper.innerHTML = `
+                    <div class="w-8 h-8 bg-primary/10 text-primary rounded-full flex-shrink-0 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">smart_toy</span>
+                    </div>
+                    <div class="bg-surface-container-low p-3 rounded-2xl rounded-tl-none border border-outline-variant shadow-sm">
+                        <p class="text-body-md text-on-surface text-xs leading-relaxed">${cleanResponse}</p>
+                    </div>
+                `;
+            }
+            chatMessages.appendChild(wrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function handleSend() {
+            const val = chatInput.value.trim();
+            if (!val) return;
+            appendMessage(val, true);
+            chatInput.value = '';
+            
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: val, contextPage: 'data' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                appendMessage(data.response, false);
+            })
+            .catch(err => {
+                console.error(err);
+                appendMessage("I'm sorry, I'm having trouble connecting to the database server right now.", false);
+            });
+        }
+
+        sendBtn.addEventListener('click', handleSend);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+    </script>
+</body>
+</html>

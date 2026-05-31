@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Live Road Quality Check | Road Infrastructure Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#d6e3ff",
+                    "on-primary-fixed-variant": "#2d476f",
+                    "on-tertiary-container": "#c6955e",
+                    "on-tertiary-fixed": "#2b1700",
+                    "surface-tint": "#455f88",
+                    "on-secondary-container": "#586377",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-alt": "#EDF2F7",
+                    "on-error-container": "#93000a",
+                    "surface-dim": "#d7dadc",
+                    "inverse-on-surface": "#eef1f3",
+                    "status-success": "#2F855A",
+                    "outline-variant": "#c4c6cf",
+                    "background": "#f7fafc",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed-dim": "#f2bc82",
+                    "surface-bright": "#f7fafc",
+                    "on-surface-variant": "#43474e",
+                    "inverse-primary": "#adc7f7",
+                    "heritage-red": "#E31E2E",
+                    "primary-fixed-dim": "#adc7f7",
+                    "error-container": "#ffdad6",
+                    "secondary": "#545f72",
+                    "outline": "#74777f",
+                    "tertiary": "#321b00",
+                    "on-secondary-fixed-variant": "#3c475a",
+                    "surface-variant": "#e0e3e5",
+                    "on-background": "#181c1e",
+                    "surface": "#f7fafc",
+                    "secondary-container": "#d5e0f7",
+                    "tertiary-fixed": "#ffddba",
+                    "surface-container": "#ebeef0",
+                    "on-tertiary-fixed-variant": "#633f0f",
+                    "surface-container-high": "#e5e9eb",
+                    "on-surface": "#181c1e",
+                    "on-secondary-fixed": "#111c2c",
+                    "on-primary-container": "#86a0cd",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#f1f4f6",
+                    "status-warning": "#C05621",
+                    "secondary-fixed-dim": "#bcc7dd",
+                    "surface-container-highest": "#e0e3e5",
+                    "inverse-surface": "#2d3133",
+                    "primary-container": "#1a365d",
+                    "tertiary-container": "#4f2e00",
+                    "secondary-fixed": "#d8e3fa",
+                    "ink-black": "#090909",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#001b3c",
+                    "on-primary": "#ffffff",
+                    "primary": "#002045"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "container-max": "1280px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "40px",
+                    "stack-sm": "8px",
+                    "gutter": "24px",
+                    "stack-md": "16px",
+                    "stack-lg": "32px",
+                    "section-gap": "64px"
+            },
+            "fontFamily": {
+                    "label-md": ["Public Sans"],
+                    "headline-md": ["Public Sans"],
+                    "label-bold": ["Public Sans"],
+                    "headline-xl": ["Public Sans"],
+                    "headline-lg-mobile": ["Public Sans"],
+                    "body-lg": ["Public Sans"],
+                    "body-md": ["Public Sans"],
+                    "body-sm": ["Public Sans"],
+                    "headline-lg": ["Public Sans"]
+            },
+            "fontSize": {
+                    "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-bold": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .monitor-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .3; }
+        }
+        .zebra-striping tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+        .spike-anim {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 3s linear infinite;
+        }
+        @keyframes dash {
+          to { stroke-dashoffset: 0; }
+        }
+    </style>
+</head>
+<body class="bg-background font-body-md text-on-background min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-white dark:bg-on-background border-b border-outline-variant dark:border-outline sticky top-0 z-50">
+<div class="flex justify-between items-center h-16 px-margin-desktop max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md text-primary dark:text-primary-fixed uppercase tracking-tight">
+                Road Infrastructure Portal
+            </div>
+<nav class="hidden md:flex items-center gap-stack-lg h-full">
+<a class="text-secondary dark:text-secondary-fixed hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md text-body-md" href="#">Home</a>
+<a class="text-secondary dark:text-secondary-fixed hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md text-body-md" href="#">Road Complaint</a>
+<a class="text-secondary dark:text-secondary-fixed hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md text-body-md" href="#">Road Data</a>
+<a class="text-primary dark:text-primary-fixed border-b-2 border-primary dark:border-primary-fixed pb-1 font-bold font-body-md text-body-md" href="#">Live Quality Check</a>
+<a class="text-secondary dark:text-secondary-fixed hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md text-body-md" href="#">Contact</a>
+</nav>
+<div class="flex items-center gap-stack-md">
+<button class="text-primary dark:text-primary-fixed font-label-bold text-label-bold uppercase px-4 py-2 border border-primary dark:border-primary-fixed rounded">
+                    Login
+                </button>
+</div>
+</div>
+</header>
+<main class="flex-grow max-w-container-max mx-auto w-full px-margin-desktop py-stack-lg">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-end mb-stack-lg gap-stack-md">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="w-3 h-3 bg-status-success rounded-full monitor-pulse"></span>
+<span class="font-label-bold text-label-bold text-status-success uppercase">System Live: Active Monitoring</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-primary">Live Quality Dashboard</h1>
+<p class="font-body-lg text-body-lg text-secondary max-w-2xl mt-2">Real-time vibration analysis, pothole detection, and surface temperature monitoring across the network.</p>
+</div>
+<div class="flex gap-stack-sm">
+<button class="bg-primary text-on-primary px-6 py-3 rounded shadow-sm hover:bg-primary-container transition-colors font-label-bold text-label-bold uppercase">
+                    Export Report
+                </button>
+</div>
+</div>
+<!-- Metric Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-gutter mb-stack-lg">
+<!-- Score -->
+<div class="bg-white border border-outline-variant p-stack-md rounded-lg flex flex-col justify-between">
+<div>
+<span class="font-label-bold text-label-bold text-secondary uppercase block mb-1">Quality Score</span>
+<h2 class="font-headline-xl text-headline-xl text-status-success">84.2</h2>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-status-success">trending_up</span>
+<span class="font-body-sm text-body-sm text-secondary">+1.2% /hr</span>
+</div>
+</div>
+<!-- Temperature -->
+<div class="bg-white border border-outline-variant p-stack-md rounded-lg flex flex-col justify-between">
+<div>
+<span class="font-label-bold text-label-bold text-secondary uppercase block mb-1">Road Surface Temp</span>
+<h2 class="font-headline-xl text-headline-xl text-status-warning" id="temp-val">42.4<span class="text-body-md font-normal">°C</span></h2>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-status-warning">thermostat</span>
+<span class="font-body-sm text-body-sm text-secondary">Status: High (Caution)</span>
+</div>
+</div>
+<!-- Potholes -->
+<div class="bg-white border border-outline-variant p-stack-md rounded-lg flex flex-col justify-between">
+<div>
+<span class="font-label-bold text-label-bold text-secondary uppercase block mb-1">Detections (24h)</span>
+<h2 class="font-headline-xl text-headline-xl text-heritage-red">12</h2>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-heritage-red">warning</span>
+<span class="font-body-sm text-body-sm text-secondary">3 Urgent interventions</span>
+</div>
+</div>
+<!-- Vibration -->
+<div class="bg-white border border-outline-variant p-stack-md rounded-lg flex flex-col justify-between">
+<div>
+<span class="font-label-bold text-label-bold text-secondary uppercase block mb-1">Avg Vibration</span>
+<h2 class="font-headline-xl text-headline-xl text-primary">0.42 <span class="text-body-md font-normal">m/s²</span></h2>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">sensors</span>
+<span class="font-body-sm text-body-sm text-secondary">Sensor: Nominal</span>
+</div>
+</div>
+<!-- Status -->
+<div class="bg-white border border-outline-variant p-stack-md rounded-lg flex flex-col justify-between">
+<div>
+<span class="font-label-bold text-label-bold text-secondary uppercase block mb-1">Current Status</span>
+<h2 class="font-headline-xl text-headline-xl text-status-success">GOOD</h2>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-status-success">check_circle</span>
+<span class="font-body-sm text-body-sm text-secondary">Within safety bounds</span>
+</div>
+</div>
+</div>
+<!-- Main Layout: Heatmap and Side Panel -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-stack-lg">
+<!-- Heatmap Visualization -->
+<div class="lg:col-span-2 bg-white border border-outline-variant rounded-lg overflow-hidden flex flex-col h-[600px]">
+<div class="p-stack-md border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-primary">Live Road Quality Map</h3>
+<div class="flex gap-4"><div class="flex items-center gap-2"><span class="w-3 h-3 bg-status-success rounded-full"></span><span class="text-body-sm font-medium">Optimal</span></div><div class="flex items-center gap-2"><span class="w-3 h-3 bg-status-warning rounded-full"></span><span class="text-body-sm font-medium">Caution</span></div><div class="flex items-center gap-2"><span class="w-3 h-3 bg-heritage-red rounded-full"></span><span class="text-body-sm font-medium">Critical</span></div></div>
+</div>
+<div class="flex-grow relative bg-[#E5E3DF]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCE-DKQ4ybRSMyLpAfTDXyPS30ERge-2xnBRendapcE5qhGBASbuBQ60Ke0zTdhPXAh4ZjjGV4UuU00psFfroRjeIJA8E3MZHgEXBM-hBDylvONcrTpgL3bZGpPCNZiQ3qw3tvVkLNVYxchYfmsFnDEkBBhwacow2uDAqTa28jsP-GEubajGm43EmmOUrfrJRuFr5fSzvEWIrY9WUwIU8WWYA3zjjmGQbXUHbOlmQbSRloJEuy8kQlellGrV8jFGN3QrqU5ArEN0CM'); background-size: cover; background-position: center;"><svg class="absolute inset-0 w-full h-full pointer-events-none" preserveaspectratio="none" viewbox="0 0 100 100"><path d="M10,0 L35,100" fill="none" opacity="0.6" stroke="#22c55e" stroke-width="4"></path><path d="M0,55 L100,20" fill="none" opacity="0.6" stroke="#eab308" stroke-width="3"></path><path d="M50,0 L85,100" fill="none" opacity="0.6" stroke="#22c55e" stroke-width="4"></path><path d="M52,43 L58,35" fill="none" opacity="0.8" stroke="#ef4444" stroke-width="6"></path></svg><div class="absolute top-[40%] left-[53%] flex flex-col items-center"><div class="bg-primary text-white p-1 rounded-full shadow-lg ring-4 ring-primary/20"><span class="material-symbols-outlined text-sm">local_shipping</span></div><span class="text-[10px] font-bold bg-white/90 backdrop-blur-sm px-1 mt-1 rounded border border-outline-variant shadow-sm text-primary">UNIT-04</span></div><div class="absolute top-[45%] left-[58%] bg-white/95 p-4 rounded-lg border border-outline-variant shadow-lg backdrop-blur-md min-w-[200px] z-10"><span class="font-label-bold text-label-bold text-primary block mb-3 uppercase tracking-wider border-b border-outline-variant pb-2">Active Zone Detail</span><div class="flex flex-col gap-2"><div class="flex justify-between gap-8"><span class="text-body-sm text-secondary">Zone:</span><span class="text-body-sm font-bold">Sector 7G</span></div><div class="flex justify-between gap-8"><span class="text-body-sm text-secondary">Road Temp:</span><span class="text-body-sm font-bold text-status-warning">42.4°C</span></div><div class="flex justify-between gap-8"><span class="text-body-sm text-secondary">Traffic Flow:</span><span class="text-body-sm font-bold">High</span></div><div class="flex justify-between gap-8"><span class="text-body-sm text-secondary">GPS Accuracy:</span><span class="text-body-sm font-bold">±0.5m</span></div></div></div></div>
+</div>
+<!-- Recent Detections List -->
+<div class="bg-white border border-outline-variant rounded-lg flex flex-col h-[600px]">
+<div class="p-stack-md border-b border-outline-variant bg-surface-container-low">
+<h3 class="font-headline-md text-headline-md text-primary">Recent Detections</h3>
+</div>
+<div class="flex-grow overflow-y-auto">
+<table class="w-full text-left border-collapse zebra-striping">
+<thead class="bg-surface-alt font-label-bold text-label-bold uppercase text-secondary sticky top-0">
+<tr>
+<th class="p-4 border-b border-outline-variant">Location</th>
+<th class="p-4 border-b border-outline-variant">Severity</th>
+</tr>
+</thead>
+<tbody class="text-body-sm">
+<tr>
+<td class="p-4">32nd St &amp; Lex Ave</td>
+<td class="p-4"><span class="bg-error-container text-on-error-container px-2 py-1 rounded text-[10px] font-bold uppercase">High</span></td>
+</tr>
+<tr>
+<td class="p-4">Broadway Northbound</td>
+<td class="p-4"><span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-[10px] font-bold uppercase">Med</span></td>
+</tr>
+<tr>
+<td class="p-4">Bridge St Ramp</td>
+<td class="p-4"><span class="bg-error-container text-on-error-container px-2 py-1 rounded text-[10px] font-bold uppercase">High</span></td>
+</tr>
+<tr>
+<td class="p-4">Park Circle SE</td>
+<td class="p-4"><span class="bg-surface-container-highest text-secondary px-2 py-1 rounded text-[10px] font-bold uppercase">Low</span></td>
+</tr>
+<tr>
+<td class="p-4">Industrial Way</td>
+<td class="p-4"><span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-[10px] font-bold uppercase">Med</span></td>
+</tr>
+<tr>
+<td class="p-4">West Side Pkwy</td>
+<td class="p-4"><span class="bg-error-container text-on-error-container px-2 py-1 rounded text-[10px] font-bold uppercase">High</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-outline-variant">
+<button class="w-full py-2 text-primary font-label-bold text-label-bold uppercase hover:bg-surface-container transition-colors">View All Incidents</button>
+</div>
+</div>
+</div>
+<!-- Motion Sensor Analytics Section -->
+<section class="mb-stack-lg">
+<div class="bg-white border border-outline-variant rounded-lg p-stack-lg">
+<h3 class="font-headline-md text-headline-md text-primary mb-stack-md">Real-Time Sensor Analytics</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Accelerometer Spike Chart -->
+<div class="border border-outline-variant rounded p-4 bg-surface-container-lowest">
+<div class="flex justify-between items-center mb-4">
+<span class="font-label-bold text-label-bold text-secondary uppercase">Accelerometer (Z-Axis)</span>
+<span class="text-[10px] bg-error-container text-on-error-container px-1 rounded font-bold">POTHOLE DETECTED</span>
+</div>
+<div class="h-40 w-full relative">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 400 100">
+<path class="spike-anim" d="M0,50 L50,52 L100,48 L150,55 L200,10 L210,90 L220,5 L230,85 L250,50 L300,52 L350,48 L400,50" fill="none" stroke="#ba1a1a" stroke-width="2"></path>
+</svg>
+<div class="absolute inset-0 border-b border-outline-variant border-dashed opacity-50 top-1/2"></div>
+</div>
+<p class="text-[10px] text-secondary mt-2">Spike intensity: 3.8g measured at 14:02:44</p>
+</div>
+<!-- Vibration Intensity Graph -->
+<div class="border border-outline-variant rounded p-4 bg-surface-container-lowest">
+<div class="flex justify-between items-center mb-4">
+<span class="font-label-bold text-label-bold text-secondary uppercase">Vibration Intensity (RMS)</span>
+<span class="text-[10px] text-status-success font-bold uppercase">Stable</span>
+</div>
+<div class="h-40 w-full flex items-end gap-1">
+<div class="flex-1 bg-primary/40 h-1/4 rounded-t"></div>
+<div class="flex-1 bg-primary/40 h-1/3 rounded-t"></div>
+<div class="flex-1 bg-primary/40 h-1/4 rounded-t"></div>
+<div class="flex-1 bg-primary/60 h-1/2 rounded-t"></div>
+<div class="flex-1 bg-primary h-3/4 rounded-t"></div>
+<div class="flex-1 bg-primary/40 h-1/3 rounded-t"></div>
+<div class="flex-1 bg-primary/40 h-1/4 rounded-t"></div>
+<div class="flex-1 bg-primary/40 h-1/2 rounded-t"></div>
+</div>
+<p class="text-[10px] text-secondary mt-2">Mean vibration level: 0.42 m/s²</p>
+</div>
+</div>
+</div>
+</section>
+<!-- System Workflow Visualization -->
+<section class="mb-section-gap">
+<div class="bg-white border border-outline-variant rounded-lg p-stack-lg">
+<h3 class="font-headline-md text-headline-md text-primary mb-stack-lg">System Intelligence Workflow</h3>
+<div class="flex flex-col md:flex-row justify-between items-center gap-4 relative">
+<!-- Connecting Line (Desktop) -->
+<div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-outline-variant -z-10"></div>
+<!-- Step 1 -->
+<div class="flex flex-col items-center text-center bg-white p-4 border border-outline-variant rounded w-full md:w-40 shadow-sm">
+<span class="material-symbols-outlined text-primary mb-2">local_shipping</span>
+<span class="font-label-bold text-[10px] uppercase">Vehicle Movement</span>
+</div>
+<span class="material-symbols-outlined text-outline md:hidden">arrow_downward</span>
+<!-- Step 2 -->
+<div class="flex flex-col items-center text-center bg-white p-4 border border-outline-variant rounded w-full md:w-40 shadow-sm">
+<span class="material-symbols-outlined text-primary mb-2">sensors</span>
+<span class="font-label-bold text-[10px] uppercase">Motion Detection</span>
+</div>
+<span class="material-symbols-outlined text-outline md:hidden">arrow_downward</span>
+<!-- Step 3 -->
+<div class="flex flex-col items-center text-center bg-white p-4 border border-outline-variant rounded w-full md:w-40 shadow-sm">
+<span class="material-symbols-outlined text-primary mb-2">analytics</span>
+<span class="font-label-bold text-[10px] uppercase">Vibration Spike Analysis</span>
+</div>
+<span class="material-symbols-outlined text-outline md:hidden">arrow_downward</span>
+<!-- Step 4 -->
+<div class="flex flex-col items-center text-center bg-white p-4 border border-outline-variant rounded w-full md:w-40 shadow-sm">
+<span class="material-symbols-outlined text-heritage-red mb-2">pothole</span>
+<span class="font-label-bold text-[10px] uppercase text-heritage-red">Pothole Detection</span>
+</div>
+<span class="material-symbols-outlined text-outline md:hidden">arrow_downward</span>
+<!-- Step 5 -->
+<div class="flex flex-col items-center text-center bg-white p-4 border border-outline-variant rounded w-full md:w-40 shadow-sm">
+<span class="material-symbols-outlined text-primary mb-2">location_searching</span>
+<span class="font-label-bold text-[10px] uppercase">GPS Tagging</span>
+</div>
+<span class="material-symbols-outlined text-outline md:hidden">arrow_downward</span>
+<!-- Step 6 -->
+<div class="flex flex-col items-center text-center bg-white p-4 border border-outline-variant rounded w-full md:w-40 shadow-sm">
+<span class="material-symbols-outlined text-status-success mb-2">update</span>
+<span class="font-label-bold text-[10px] uppercase">Quality Update</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Condition Trend Graph -->
+<section class="mb-section-gap">
+<div class="bg-white border border-outline-variant rounded-lg p-stack-lg">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-stack-lg gap-stack-md">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">Quality Trend Analysis</h3>
+<p class="font-body-sm text-body-sm text-secondary">Historical quality metrics comparison (7-Day window)</p>
+</div>
+<div class="flex gap-stack-sm bg-surface-container-low p-1 rounded">
+<button class="px-3 py-1 bg-white shadow-sm rounded text-label-bold text-label-bold text-primary">24H</button>
+<button class="px-3 py-1 text-label-bold text-label-bold text-secondary">7D</button>
+<button class="px-3 py-1 text-label-bold text-label-bold text-secondary">30D</button>
+</div>
+</div>
+<div class="h-64 w-full relative">
+<!-- Placeholder for Trend Graph Visual -->
+<div class="absolute inset-0 flex items-end justify-between px-4 pb-8">
+<div class="w-12 bg-primary/20 h-1/2 rounded-t transition-all hover:bg-primary/40 group relative">
+<span class="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-primary text-white text-[10px] px-1 rounded">72</span>
+</div>
+<div class="w-12 bg-primary/20 h-2/3 rounded-t transition-all hover:bg-primary/40 group relative">
+<span class="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-primary text-white text-[10px] px-1 rounded">78</span>
+</div>
+<div class="w-12 bg-primary/20 h-3/4 rounded-t transition-all hover:bg-primary/40 group relative">
+<span class="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-primary text-white text-[10px] px-1 rounded">82</span>
+</div>
+<div class="w-12 bg-primary h-5/6 rounded-t transition-all hover:bg-primary/40 group relative">
+<span class="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-primary text-white text-[10px] px-1 rounded">89</span>
+</div>
+<div class="w-12 bg-primary/20 h-2/3 rounded-t transition-all hover:bg-primary/40 group relative">
+<span class="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-primary text-white text-[10px] px-1 rounded">76</span>
+</div>
+<div class="w-12 bg-primary/20 h-1/2 rounded-t transition-all hover:bg-primary/40 group relative">
+<span class="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-primary text-white text-[10px] px-1 rounded">70</span>
+</div>
+<div class="w-12 bg-primary/20 h-4/5 rounded-t transition-all hover:bg-primary/40 group relative">
+<span class="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-primary text-white text-[10px] px-1 rounded">84</span>
+</div>
+</div>
+<!-- Axis Labels -->
+<div class="absolute bottom-0 w-full flex justify-between px-4 text-label-bold text-label-bold text-secondary uppercase border-t border-outline-variant pt-2">
+<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+</div>
+<div class="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] font-bold text-secondary opacity-50 pr-2">
+<span>100</span><span>75</span><span>50</span><span>25</span><span>0</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-primary dark:bg-ink-black border-t border-primary-container">
+<div class="w-full py-stack-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-stack-md max-w-container-max mx-auto">
+<div class="flex flex-col items-center md:items-start gap-2">
+<div class="font-label-bold text-label-bold text-on-primary">Department of Transportation</div>
+<p class="font-body-sm text-body-sm text-on-primary-container dark:text-on-secondary-fixed">© 2024 Department of Transportation and Infrastructure. All rights reserved.</p>
+</div>
+<nav class="flex flex-wrap justify-center gap-stack-md">
+<a class="font-body-sm text-body-sm text-on-primary-container dark:text-on-secondary-fixed hover:text-white transition-colors underline font-bold" href="#">Emergency Contacts</a>
+<a class="font-body-sm text-body-sm text-on-primary-container dark:text-on-secondary-fixed hover:text-white transition-colors" href="#">Privacy Policy</a>
+<a class="font-body-sm text-body-sm text-on-primary-container dark:text-on-secondary-fixed hover:text-white transition-colors" href="#">Terms of Service</a>
+<a class="font-body-sm text-body-sm text-on-primary-container dark:text-on-secondary-fixed hover:text-white transition-colors" href="#">Accessibility Statement</a>
+</nav>
+</div>
+</footer>
+<script>
+        // Micro-interactions for live status simulation
+        function updateLiveMetrics() {
+            const scoreElement = document.querySelector('h2.text-status-success');
+            if (scoreElement) {
+                const currentScore = parseFloat(scoreElement.innerText);
+                const variance = (Math.random() - 0.5) * 0.4;
+                scoreElement.innerText = (currentScore + variance).toFixed(1);
+            }
+
+            const tempElement = document.getElementById('temp-val');
+            if (tempElement) {
+                const currentTemp = 42.4;
+                const variance = (Math.random() - 0.5) * 0.2;
+                tempElement.innerHTML = (currentTemp + variance).toFixed(1) + '<span class="text-body-md font-normal">°C</span>';
+            }
+        }
+
+        setInterval(updateLiveMetrics, 3000);
+    </script>
+<div class="fixed bottom-8 right-8 z-[60] flex flex-col items-end gap-4">
+<div class="hidden w-[350px] h-[500px] bg-white dark:bg-on-background border border-outline-variant dark:border-outline shadow-2xl rounded-xl flex flex-col overflow-hidden mb-4" id="ai-assistant-panel">
+<div class="bg-primary p-4 flex justify-between items-center text-on-primary">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary-fixed">smart_toy</span>
+<span class="font-headline-md text-body-lg">RoadSense AI</span>
+</div>
+<button class="hover:bg-primary-container p-1 rounded transition-colors" onclick="document.getElementById('ai-assistant-panel').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex-grow p-4 overflow-y-auto flex flex-col gap-4 bg-surface-container-low">
+<div class="bg-white p-3 rounded-lg border border-outline-variant shadow-sm max-w-[85%] self-start">
+<p class="text-body-sm text-on-surface">Hello! I'm monitoring the road infrastructure data. I noticed a slight vibration increase in Sector 7G. Would you like a detailed report?</p>
+</div>
+<div class="bg-primary-container p-3 rounded-lg shadow-sm max-w-[85%] self-end">
+<p class="text-body-sm text-on-primary-container">Yes, show me the last 15 minutes for that sector.</p>
+</div>
+</div>
+<div class="p-4 border-t border-outline-variant bg-white">
+<div class="flex gap-2">
+<input class="flex-grow border border-outline-variant rounded-lg px-3 py-2 text-body-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Ask about road quality..." type="text"/>
+<button class="bg-primary text-on-primary p-2 rounded-lg hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+</div>
+<button class="bg-primary hover:bg-primary-container text-on-primary w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all transform hover:scale-110 active:scale-95 group ring-4 ring-primary/10" onclick="document.getElementById('ai-assistant-panel').classList.toggle('hidden')">
+<span class="material-symbols-outlined text-2xl">chat_bubble</span>
+<span class="absolute -top-1 -right-1 flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-warning opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-status-warning"></span>
+</span>
+</button>
+</div></body></html>

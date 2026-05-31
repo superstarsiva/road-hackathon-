@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Road Complaint Portal | Department of Transportation</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    
+    <!-- Leaflet.js Maps integration -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-tertiary": "#ffffff",
+                "primary-fixed": "#d6e3ff",
+                "on-primary-fixed-variant": "#2d476f",
+                "on-tertiary-container": "#c6955e",
+                "on-tertiary-fixed": "#2b1700",
+                "surface-tint": "#455f88",
+                "on-secondary-container": "#586377",
+                "surface-container-lowest": "#ffffff",
+                "surface-alt": "#EDF2F7",
+                "on-error-container": "#93000a",
+                "surface-dim": "#d7dadc",
+                "inverse-on-surface": "#eef1f3",
+                "status-success": "#2F855A",
+                "outline-variant": "#c4c6cf",
+                "background": "#f7fafc",
+                "on-secondary": "#ffffff",
+                "tertiary-fixed-dim": "#f2bc82",
+                "surface-bright": "#f7fafc",
+                "on-surface-variant": "#43474e",
+                "inverse-primary": "#adc7f7",
+                "heritage-red": "#E31E2E",
+                "primary-fixed-dim": "#adc7f7",
+                "error-container": "#ffdad6",
+                "secondary": "#545f72",
+                "outline": "#74777f",
+                "tertiary": "#321b00",
+                "on-secondary-fixed-variant": "#3c475a",
+                "surface-variant": "#e0e3e5",
+                "on-background": "#181c1e",
+                "surface": "#f7fafc",
+                "secondary-container": "#d5e0f7",
+                "tertiary-fixed": "#ffddba",
+                "surface-container": "#ebeef0",
+                "on-tertiary-fixed-variant": "#633f0f",
+                "surface-container-high": "#e5e9eb",
+                "on-surface": "#181c1e",
+                "on-secondary-fixed": "#111c2c",
+                "on-primary-container": "#86a0cd",
+                "error": "#ba1a1a",
+                "surface-container-low": "#f1f4f6",
+                "status-warning": "#C05621",
+                "secondary-fixed-dim": "#bcc7dd",
+                "surface-container-highest": "#e0e3e5",
+                "inverse-surface": "#2d3133",
+                "primary-container": "#1a365d",
+                "tertiary-container": "#4f2e00",
+                "secondary-fixed": "#d8e3fa",
+                "ink-black": "#090909",
+                "on-error": "#ffffff",
+                "on-primary-fixed": "#001b3c",
+                "on-primary": "#ffffff",
+                "primary": "#002045"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "spacing": {
+                "container-max": "1280px",
+                "margin-mobile": "16px",
+                "margin-desktop": "40px",
+                "stack-sm": "8px",
+                "gutter": "24px",
+                "stack-md": "16px",
+                "stack-lg": "32px",
+                "section-gap": "64px"
+            },
+            "fontFamily": {
+                "label-md": ["Public Sans"],
+                "headline-md": ["Public Sans"],
+                "label-bold": ["Public Sans"],
+                "headline-xl": ["Public Sans"],
+                "headline-lg-mobile": ["Public Sans"],
+                "body-lg": ["Public Sans"],
+                "body-md": ["Public Sans"],
+                "body-sm": ["Public Sans"],
+                "headline-lg": ["Public Sans"]
+            },
+            "fontSize": {
+                "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "label-bold": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+        body {
+            font-family: "Public Sans", sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+        }
+        #leaflet-map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background">
+    <!-- TopNavBar -->
+    <nav class="bg-white border-b border-outline-variant sticky top-0 z-50">
+        <div class="flex justify-between items-center h-16 px-margin-desktop max-w-container-max mx-auto">
+            <div class="font-headline-md text-headline-md text-primary uppercase tracking-tight">
+                Road Infrastructure Portal
+            </div>
+            <div class="hidden md:flex items-center gap-gutter">
+                <a class="font-body-md text-body-md text-secondary hover:text-primary transition-colors" href="/">Home</a>
+                <a class="font-body-md text-body-md text-primary border-b-2 border-primary pb-1 font-bold" href="/complaint">Road Complaint</a>
+                <a class="font-body-md text-body-md text-secondary hover:text-primary transition-colors" href="/data">Road Data</a>
+                <a class="font-body-md text-body-md text-secondary hover:text-primary transition-colors" href="/live">Live Quality Check</a>
+            </div>
+            <div class="flex items-center gap-stack-md">
+                <button class="font-body-md text-body-md text-primary px-stack-md py-stack-sm hover:bg-surface-container-low transition-all">Login</button>
+            </div>
+        </div>
+    </nav>
+    <main class="max-w-container-max mx-auto px-margin-desktop py-stack-lg">
+        <!-- Header Section -->
+        <section class="mb-stack-lg">
+            <h1 class="font-headline-xl text-headline-xl text-primary mb-stack-sm">Report a Road Issue</h1>
+            <p class="font-body-lg text-body-lg text-secondary max-w-3xl">Help us maintain safe and efficient infrastructure. Provide details about the road condition, and our engineering teams will investigate promptly.</p>
+        </section>
+        <!-- Search and Map Integrated Section -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-section-gap">
+            <div class="lg:col-span-12">
+                <div class="bg-white border border-outline-variant p-stack-md mb-stack-md flex flex-col md:flex-row gap-stack-md items-center">
+                    <div class="relative flex-grow w-full">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+                        <input id="map-search-input" class="w-full pl-12 pr-4 py-3 border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary outline-none font-body-md text-body-sm" placeholder="Search a road name to center the map..." type="text"/>
+                    </div>
+                    <button class="flex items-center gap-2 bg-secondary-container text-on-secondary-container px-6 py-3 font-label-bold text-label-bold hover:bg-outline-variant transition-colors whitespace-nowrap" id="detect-location">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">my_location</span>
+                        AUTO-DETECT LOCATION
+                    </button>
+                </div>
+                
+                <!-- Interactive Map Container -->
+                <div class="relative w-full h-[500px] border border-outline-variant bg-surface-container overflow-hidden z-10">
+                    <div id="leaflet-map" aria-label="Interactive map of local road infrastructure"></div>
+                    <!-- Zoom Info Overlay -->
+                    <div class="absolute bottom-4 left-4 bg-primary text-on-primary px-4 py-2 font-body-sm text-body-sm z-[1000] pointer-events-none">
+                        Click on the map to pin the exact complaint location
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Complaint Form -->
+        <section class="max-w-4xl">
+            <div class="bg-white border border-outline-variant p-stack-lg">
+                <div class="mb-stack-lg border-b border-outline-variant pb-stack-md">
+                    <h2 class="font-headline-md text-headline-md text-primary">Incident Details</h2>
+                </div>
+                <form id="complaint-form" class="space-y-gutter">
+                    <!-- Invisible Coordinates Storage -->
+                    <input type="hidden" name="latitude" id="latitude-input" value="13.0827" />
+                    <input type="hidden" name="longitude" id="longitude-input" value="80.2707" />
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+                        <div class="flex flex-col gap-stack-sm">
+                            <label class="font-label-bold text-label-bold text-secondary uppercase tracking-wider">Road Name / Location Pinned</label>
+                            <input id="road-name-input" name="roadName" class="p-3 border border-outline-variant font-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none text-body-sm" placeholder="Pin a location on the map above..." type="text" required/>
+                        </div>
+                        <div class="flex flex-col gap-stack-sm">
+                            <label class="font-label-bold text-label-bold text-secondary uppercase tracking-wider">Issue Type</label>
+                            <select id="issue-type-input" name="issueType" class="p-3 border border-outline-variant font-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none bg-white text-body-sm" required>
+                                <option value="">Select Issue Type</option>
+                                <option value="Pothole / Surface Damage">Pothole / Surface Damage</option>
+                                <option value="Signage Maintenance">Signage Maintenance</option>
+                                <option value="Traffic Signal Failure">Traffic Signal Failure</option>
+                                <option value="Debris / Obstruction">Debris / Obstruction</option>
+                                <option value="Street Light Outage">Street Light Outage</option>
+                                <option value="Drainage Issue">Drainage Issue</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+                        <div class="flex flex-col gap-stack-sm">
+                            <label class="font-label-bold text-label-bold text-secondary uppercase tracking-wider">Severity Level</label>
+                            <select id="severity-input" name="severity" class="p-3 border border-outline-variant font-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none bg-white text-body-sm" required>
+                                <option value="Low">Low</option>
+                                <option value="Med" selected>Medium</option>
+                                <option value="High">High (Immediate Danger)</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-stack-sm">
+                            <label class="font-label-bold text-label-bold text-secondary uppercase tracking-wider">Pinned Coordinates</label>
+                            <div id="coords-display" class="p-3 bg-surface-container-low border border-outline-variant text-body-sm font-mono flex items-center gap-2">
+                                <span class="material-symbols-outlined text-outline text-sm">location_on</span>
+                                <span id="coords-text" class="text-secondary">Click the map to pin a location</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-stack-sm">
+                        <label class="font-label-bold text-label-bold text-secondary uppercase tracking-wider">Description</label>
+                        <textarea id="description-input" name="description" class="p-3 border border-outline-variant font-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none text-body-sm" placeholder="Please provide specific details about the issue to assist our inspection crew..." rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="flex flex-col gap-stack-sm">
+                        <label class="font-label-bold text-label-bold text-secondary uppercase tracking-wider">Evidence Photo Upload</label>
+                        <div id="drag-drop-zone" class="border-2 border-dashed border-outline-variant hover:border-primary rounded p-6 bg-surface-container-low flex flex-col items-center justify-center cursor-pointer transition-all relative group">
+                            <input type="file" id="evidence-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-20" />
+                            <span class="material-symbols-outlined text-[40px] text-outline group-hover:text-primary transition-colors mb-2">cloud_upload</span>
+                            <p class="font-body-md text-xs text-secondary text-center group-hover:text-primary transition-colors">
+                                Drag and drop your evidence photo here, or <strong class="text-primary underline">browse files</strong>
+                            </p>
+                            <p class="text-[10px] text-outline mt-1 font-mono">Accepts JPG, PNG up to 5MB • 24h SLA Verified</p>
+                            
+                            <!-- Preview Block (Hidden initially) -->
+                            <div id="upload-preview-container" class="hidden mt-4 w-full max-w-xs p-2 border border-outline-variant bg-white flex items-center gap-3 z-30 relative" onclick="event.stopPropagation()">
+                                <img id="upload-preview-img" src="#" class="w-12 h-12 object-cover border border-outline-variant" />
+                                <div class="flex-grow min-w-0">
+                                    <p id="upload-file-name" class="font-bold text-[10px] text-primary truncate">file_name.jpg</p>
+                                    <div class="w-full bg-surface-container h-1 mt-1 rounded-full overflow-hidden">
+                                        <div id="upload-progress-bar" class="bg-status-success h-full transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <button type="button" id="remove-file-btn" class="material-symbols-outlined text-xs text-secondary hover:text-heritage-red p-1">close</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-stack-md flex justify-end gap-stack-md">
+                        <button class="px-8 py-3 border border-outline-variant text-secondary font-label-bold text-label-bold hover:bg-surface-container transition-colors uppercase tracking-widest text-label-bold" type="button" onclick="resetForm()">
+                            Reset
+                        </button>
+                        <button class="px-8 py-3 bg-primary-container text-white border border-transparent font-label-bold text-label-bold hover:bg-primary transition-colors uppercase tracking-widest flex items-center gap-2 text-label-bold" type="submit">
+                            Submit Complaint
+                            <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+        
+        <!-- Information Cards -->
+        <section class="mt-section-gap grid grid-cols-1 md:grid-cols-3 gap-gutter">
+            <div class="bg-secondary-container p-stack-lg border-t-4 border-primary">
+                <span class="material-symbols-outlined text-primary-container text-3xl mb-stack-sm">verified</span>
+                <h3 class="font-headline-md text-headline-md text-primary-container mb-2">Verified Tracking</h3>
+                <p class="font-body-md text-body-md text-secondary">Every report is assigned a unique tracking ID for transparency and progress monitoring by the Greater Chennai Corporation (GCC).</p>
+            </div>
+            <div class="bg-white border border-outline-variant p-stack-lg">
+                <span class="material-symbols-outlined text-primary text-3xl mb-stack-sm">schedule</span>
+                <h3 class="font-headline-md text-headline-md text-primary mb-2">24h Evaluation</h3>
+                <p class="font-body-md text-body-md text-secondary">Critical safety issues are evaluated within 24 hours by our field assessment teams.</p>
+            </div>
+            <div class="bg-white border border-outline-variant p-stack-lg">
+                <span class="material-symbols-outlined text-primary text-3xl mb-stack-sm">notifications_active</span>
+                <h3 class="font-headline-md text-headline-md text-primary mb-2">Real-Time Updates</h3>
+                <p class="font-body-md text-body-md text-secondary">Your reports are immediately processed, stored on the Tamil Nadu state ledger, and mapped onto live quality indicators.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <div class="bg-white border border-outline-variant p-8 max-w-md w-full relative z-10 shadow-2xl rounded-lg">
+            <div class="flex items-center gap-3 text-status-success mb-4">
+                <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                <h3 class="font-headline-md text-xl">Report Registered Successfully</h3>
+            </div>
+            <p class="font-body-md text-secondary mb-6 leading-relaxed">
+                Thank you for contributing to safe road networks. Your incident has been registered persistently.
+            </p>
+            <div class="bg-surface-container-low border border-outline-variant p-4 rounded mb-6 font-mono text-center">
+                <p class="text-xs text-secondary font-label-bold uppercase mb-1">Incident Tracking ID</p>
+                <p class="text-xl font-bold text-primary" id="modal-tracking-id">RIP-2026-1005</p>
+                <div id="modal-evidence-indicator" class="hidden mt-2 text-[10px] text-status-success font-sans font-bold flex items-center justify-center gap-1 select-none">
+                    <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">verified</span>
+                    EVIDENCE PHOTO SECURED (24H SLA ACTIVE)
+                </div>
+            </div>
+            <div class="flex flex-col gap-2">
+                <button onclick="location.href='/live'" class="w-full bg-primary text-white py-3 font-label-bold hover:bg-primary-container transition-colors uppercase tracking-widest text-sm">
+                    View on Live Quality Map
+                </button>
+                <button onclick="location.href='/data'" class="w-full bg-white border border-outline-variant text-primary py-3 font-label-bold hover:bg-surface-container transition-colors uppercase tracking-widest text-sm">
+                    Check Infrastructure Table
+                </button>
+                <button onclick="closeModal()" class="w-full bg-transparent text-secondary py-2 font-label-bold hover:underline uppercase tracking-wider text-xs">
+                    File another report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-primary border-t border-primary-container w-full py-stack-lg px-margin-desktop mt-section-gap">
+        <div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-stack-md">
+            <div class="flex flex-col gap-2">
+                <div class="font-label-bold text-label-bold text-on-primary">
+                    ROAD INFRASTRUCTURE PORTAL
+                </div>
+                <p class="font-body-sm text-body-sm text-on-primary dark:text-primary-fixed">© 2026 Tamil Nadu Highways & Minor Ports Dept. All rights reserved.</p>
+            </div>
+            <div class="flex gap-gutter text-body-sm text-on-primary">
+                <a class="hover:text-white underline" href="#">Emergency Contacts</a>
+                <a class="hover:text-white underline" href="#">Privacy Policy</a>
+                <a class="hover:text-white underline" href="#">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Maps and Forms Handling JS -->
+    <script>
+        let map;
+        let pinnedMarker;
+        const defaultLat = 13.0827;
+        const defaultLng = 80.2707;
+
+        // Initialize Map
+        function initMap() {
+            map = L.map('leaflet-map').setView([defaultLat, defaultLng], 13);
+            
+            // OpenStreetMap Tile Layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Click listener on Map to drop marker
+            map.on('click', function(e) {
+                dropPin(e.latlng.lat, e.latlng.lng);
+            });
+        }
+
+        // Drop Pin Marker
+        function dropPin(lat, lng) {
+            const latlng = L.latLng(lat, lng);
+            if (pinnedMarker) {
+                pinnedMarker.setLatLng(latlng);
+            } else {
+                pinnedMarker = L.marker(latlng, {
+                    draggable: true,
+                    title: "Incident Location"
+                }).addTo(map);
+
+                pinnedMarker.on('dragend', function(event) {
+                    const position = pinnedMarker.getLatLng();
+                    updateFormDetails(position.lat, position.lng);
+                });
+            }
+            map.panTo(latlng);
+            updateFormDetails(lat, lng);
+        }
+
+        // Update form coordinates and address when pin is placed/dragged
+        function updateFormDetails(lat, lng) {
+            // Update hidden inputs that get submitted
+            document.getElementById('latitude-input').value = lat.toFixed(6);
+            document.getElementById('longitude-input').value = lng.toFixed(6);
+
+            // Update visible coordinate display
+            const coordsText = document.getElementById('coords-text');
+            if (coordsText) {
+                coordsText.textContent = `${lat.toFixed(5)}° N, ${lng.toFixed(5)}° E`;
+                coordsText.className = 'text-status-success font-semibold';
+            }
+
+            // Chennai Geocoder Simulator based on coordinates offsets
+            let guessedAddress = "Anna Salai & Nandanam Junction, Chennai";
+            const distHome = Math.hypot(lat - defaultLat, lng - defaultLng);
+            
+            if (distHome < 0.003) guessedAddress = "Anna Salai & Nandanam Junction, Chennai";
+            else if (lat > defaultLat + 0.015) guessedAddress = "Perambur Main Road, Perambur, Chennai";
+            else if (lat < defaultLat - 0.015) guessedAddress = "Velachery Main Road, Velachery, Chennai";
+            else if (lng > defaultLng + 0.015) guessedAddress = "Rajiv Gandhi Salai (OMR), Perungudi, Chennai";
+            else if (lng < defaultLng - 0.015) guessedAddress = "GST Road (NH-44), Chrompet, Chennai";
+            else if (lat > defaultLat + 0.006) guessedAddress = "Poonamallee High Road, Kilpauk, Chennai";
+            else if (lat < defaultLat - 0.006) guessedAddress = "Guindy Industrial Estate Road, Guindy, Chennai";
+            else if (lng < defaultLng - 0.006) guessedAddress = "Arcot Road, Vadapalani, Chennai";
+            else if (lng > defaultLng + 0.006) guessedAddress = "Kamarajar Salai, Marina, Chennai";
+            else {
+                guessedAddress = `Chennai Road Sector [${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E]`;
+            }
+
+            document.getElementById('road-name-input').value = guessedAddress;
+        }
+
+        // Auto-detect Location with fallback
+        const detectBtn = document.getElementById('detect-location');
+        detectBtn.addEventListener('click', function() {
+            const originalContent = this.innerHTML;
+            this.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-on-secondary-container inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                DETECTING...
+            `;
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const userLat = position.coords.latitude;
+                        const userLng = position.coords.longitude;
+                        
+                        setTimeout(() => {
+                            dropPin(userLat, userLng);
+                            map.setView([userLat, userLng], 15);
+                            detectFixed(detectBtn, originalContent);
+                        }, 800);
+                    },
+                    function(error) {
+                        // Fallback in case of rejection or headless mode
+                        simulateLocationDetect(detectBtn, originalContent);
+                    }
+                );
+            } else {
+                simulateLocationDetect(detectBtn, originalContent);
+            }
+        });
+
+        function simulateLocationDetect(btn, originalContent) {
+            setTimeout(() => {
+                // Generate a random realistic point around Chennai center
+                const randLat = defaultLat + (Math.random() - 0.5) * 0.04;
+                const randLng = defaultLng + (Math.random() - 0.5) * 0.04;
+                dropPin(randLat, randLng);
+                map.setView([randLat, randLng], 14);
+                detectFixed(btn, originalContent);
+            }, 1000);
+        }
+
+        function detectFixed(btn, originalContent) {
+            btn.innerHTML = `<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span> LOCATION FIXED`;
+            btn.classList.replace('bg-secondary-container', 'bg-status-success');
+            btn.classList.add('text-white');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.classList.replace('bg-status-success', 'bg-secondary-container');
+                btn.classList.remove('text-white');
+            }, 3000);
+        }
+
+        // Photo Upload Handling & Progress Simulation
+        let uploadedFileObject = null;
+
+        const fileInput = document.getElementById('evidence-input');
+        const dragDropZone = document.getElementById('drag-drop-zone');
+        const previewContainer = document.getElementById('upload-preview-container');
+        const previewImg = document.getElementById('upload-preview-img');
+        const fileNameEl = document.getElementById('upload-file-name');
+        const progressBar = document.getElementById('upload-progress-bar');
+        const removeFileBtn = document.getElementById('remove-file-btn');
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) handleFileUpload(file);
+        });
+
+        dragDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dragDropZone.classList.add('border-primary', 'bg-primary-fixed/10');
+        });
+
+        dragDropZone.addEventListener('dragleave', () => {
+            dragDropZone.classList.remove('border-primary', 'bg-primary-fixed/10');
+        });
+
+        dragDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragDropZone.classList.remove('border-primary', 'bg-primary-fixed/10');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileUpload(file);
+            }
+        });
+
+        function handleFileUpload(file) {
+            uploadedFileObject = file;
+            previewContainer.classList.remove('hidden');
+            fileNameEl.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+            
+            // Show preview image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            // Simulation of file upload progress
+            progressBar.style.width = '0%';
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 20;
+                progressBar.style.width = `${progress}%`;
+                if (progress >= 100) {
+                    clearInterval(interval);
+                }
+            }, 100);
+        }
+
+        removeFileBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            resetUploadState();
+        });
+
+        function resetUploadState() {
+            fileInput.value = '';
+            uploadedFileObject = null;
+            previewContainer.classList.add('hidden');
+            previewImg.src = '#';
+            progressBar.style.width = '0%';
+        }
+
+        // Form Submit
+        document.getElementById('complaint-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Set evidence tag visibility in success modal
+            const evidenceTag = document.getElementById('modal-evidence-indicator');
+            if (uploadedFileObject) {
+                evidenceTag.classList.remove('hidden');
+            } else {
+                evidenceTag.classList.add('hidden');
+            }
+
+            const payload = {
+                roadName: document.getElementById('road-name-input').value,
+                issueType: document.getElementById('issue-type-input').value,
+                severity: document.getElementById('severity-input').value,
+                description: document.getElementById('description-input').value,
+                latitude: parseFloat(document.getElementById('latitude-input').value),
+                longitude: parseFloat(document.getElementById('longitude-input').value)
+            };
+
+            fetch('/api/complaints', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.id) {
+                    document.getElementById('modal-tracking-id').innerText = data.id;
+                    document.getElementById('success-modal').classList.remove('hidden');
+                } else {
+                    alert('Submission error. Please try again.');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Connection to server failed. Saving locally mock-up tracking ID.');
+                const mockId = `RIP-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+                document.getElementById('modal-tracking-id').innerText = mockId;
+                document.getElementById('success-modal').classList.remove('hidden');
+            });
+        });
+
+        // Search input with real Nominatim geocoding API for Chennai
+        const searchInput = document.getElementById('map-search-input');
+        const searchBtn = document.createElement('button');
+
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') performSearch();
+        });
+
+        // Also trigger on button click if any
+        function performSearch() {
+            const query = searchInput.value.trim();
+            if (!query) return;
+
+            const originalPlaceholder = searchInput.placeholder;
+            searchInput.placeholder = '🔍 Searching Chennai...';
+            searchInput.disabled = true;
+
+            // Use Nominatim with Chennai bounding box: minLon, minLat, maxLon, maxLat
+            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ', Chennai, Tamil Nadu, India')}&format=json&limit=1&viewbox=79.8,12.7,80.5,13.4&bounded=1`;
+
+            fetch(url, { headers: { 'Accept-Language': 'en' } })
+                .then(res => res.json())
+                .then(results => {
+                    searchInput.placeholder = originalPlaceholder;
+                    searchInput.disabled = false;
+                    if (results && results.length > 0) {
+                        const lat = parseFloat(results[0].lat);
+                        const lng = parseFloat(results[0].lon);
+                        dropPin(lat, lng);
+                        map.setView([lat, lng], 16);
+                    } else {
+                        // Fallback: keyword matching for common Chennai roads
+                        const q = query.toLowerCase();
+                        if (q.includes('anna salai') || q.includes('mount road')) {
+                            dropPin(13.0569, 80.2425); map.setView([13.0569, 80.2425], 15);
+                        } else if (q.includes('t. nagar') || q.includes('tnagar') || q.includes('pondy bazaar')) {
+                            dropPin(13.0418, 80.2341); map.setView([13.0418, 80.2341], 15);
+                        } else if (q.includes('omr') || q.includes('mahabalipuram') || q.includes('rajiv')) {
+                            dropPin(12.9631, 80.2188); map.setView([12.9631, 80.2188], 14);
+                        } else if (q.includes('ecr') || q.includes('east coast')) {
+                            dropPin(12.9279, 80.2538); map.setView([12.9279, 80.2538], 14);
+                        } else if (q.includes('gst') || q.includes('tambaram')) {
+                            dropPin(12.9974, 80.1947); map.setView([12.9974, 80.1947], 14);
+                        } else if (q.includes('velachery')) {
+                            dropPin(12.9785, 80.2176); map.setView([12.9785, 80.2176], 15);
+                        } else if (q.includes('adyar')) {
+                            dropPin(13.0012, 80.2565); map.setView([13.0012, 80.2565], 15);
+                        } else if (q.includes('guindy')) {
+                            dropPin(13.0067, 80.2206); map.setView([13.0067, 80.2206], 15);
+                        } else if (q.includes('egmore')) {
+                            dropPin(13.0732, 80.2609); map.setView([13.0732, 80.2609], 15);
+                        } else if (q.includes('tambaram')) {
+                            dropPin(12.9249, 80.1000); map.setView([12.9249, 80.1000], 14);
+                        } else {
+                            // No match found
+                            searchInput.placeholder = '⚠️ Location not found — try a more specific address';
+                            setTimeout(() => { searchInput.placeholder = originalPlaceholder; }, 3000);
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error('Geocoding error:', err);
+                    searchInput.placeholder = originalPlaceholder;
+                    searchInput.disabled = false;
+                });
+        }
+
+        function resetForm() {
+            document.getElementById('complaint-form').reset();
+            document.getElementById('latitude-input').value = defaultLat;
+            document.getElementById('longitude-input').value = defaultLng;
+            const coordsText = document.getElementById('coords-text');
+            if (coordsText) {
+                coordsText.textContent = 'Click the map to pin a location';
+                coordsText.className = 'text-secondary';
+            }
+            if (pinnedMarker) {
+                map.removeLayer(pinnedMarker);
+                pinnedMarker = null;
+            }
+            map.setView([defaultLat, defaultLng], 13);
+            resetUploadState();
+        }
+
+        function closeModal() {
+            document.getElementById('success-modal').classList.add('hidden');
+            resetForm();
+        }
+
+        // Initialize Map on page load
+        window.onload = initMap;
+    </script>
+
+    <!-- AI Assistant Floating Panel -->
+    <div class="fixed bottom-8 right-8 z-[100] flex flex-col items-end" id="ai-chat-container">
+        <div class="hidden mb-4 w-[380px] h-[500px] bg-white/95 backdrop-blur-md border border-outline-variant rounded-xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform origin-bottom-right" id="chat-window">
+            <div class="bg-primary p-4 flex items-center justify-between text-on-primary">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px]">smart_toy</span>
+                    </div>
+                    <div>
+                        <p class="font-label-md leading-none text-white">Road Support AI</p>
+                        <div class="flex items-center gap-1.5 mt-1">
+                            <span class="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+                            <span class="text-[10px] text-white/70 uppercase tracking-wider">Online</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="material-symbols-outlined hover:bg-white/10 p-1 rounded-full text-white" id="close-chat">close</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-surface-container-lowest" id="chat-messages">
+                <div class="flex gap-2 max-w-[85%]">
+                    <div class="w-8 h-8 bg-primary/10 text-primary rounded-full flex-shrink-0 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">smart_toy</span>
+                    </div>
+                    <div class="bg-surface-container-low p-3 rounded-2xl rounded-tl-none border border-outline-variant shadow-sm text-xs">
+                        <p class="text-body-md text-on-surface">Hello! I'm your Civic Assistant. I can check incident statuses in real-time, inspect highway quality scores, and help you select coordinates on the map. How can I help you today?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-outline-variant bg-white">
+                <div class="flex gap-2">
+                    <input class="w-full px-4 py-2.5 bg-surface-container-low border-none rounded-lg text-xs focus:ring-2 focus:ring-primary/20 outline-none" id="chat-input" placeholder="Ask about road complaints or road quality..." type="text"/>
+                    <button class="text-primary hover:scale-110 transition-transform p-2" id="send-chat-btn">
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <button class="w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-all text-white" id="chat-toggle-btn">
+            <span class="material-symbols-outlined text-[28px]" id="chat-icon">forum</span>
+        </button>
+    </div>
+
+    <script>
+        const chatToggle = document.getElementById('chat-toggle-btn');
+        const chatWindow = document.getElementById('chat-window');
+        const closeChat = document.getElementById('close-chat');
+        const chatIcon = document.getElementById('chat-icon');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-chat-btn');
+
+        chatToggle.addEventListener('click', () => {
+            const isHidden = chatWindow.classList.contains('hidden');
+            if (isHidden) {
+                chatWindow.classList.remove('hidden');
+                chatIcon.textContent = 'close';
+            } else {
+                chatWindow.classList.add('hidden');
+                chatIcon.textContent = 'forum';
+            }
+        });
+
+        closeChat.addEventListener('click', () => {
+            chatWindow.classList.add('hidden');
+            chatIcon.textContent = 'forum';
+        });
+
+        function appendMessage(text, isUser) {
+            let cleanResponse = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code class="bg-primary/5 px-1 rounded font-mono font-bold">$1</code>')
+                .replace(/\n/g, '<br/>');
+
+            const wrapper = document.createElement('div');
+            wrapper.className = isUser ? 'flex flex-col items-end gap-1 w-full' : 'flex gap-2 max-w-[85%]';
+            
+            if (isUser) {
+                wrapper.innerHTML = `
+                    <div class="bg-primary text-white p-3 rounded-tl-xl rounded-b-xl max-w-[85%] self-end">
+                        <p class="font-body-sm text-xs leading-relaxed">${text}</p>
+                    </div>
+                `;
+            } else {
+                wrapper.innerHTML = `
+                    <div class="w-8 h-8 bg-primary/10 text-primary rounded-full flex-shrink-0 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">smart_toy</span>
+                    </div>
+                    <div class="bg-surface-container-low p-3 rounded-2xl rounded-tl-none border border-outline-variant shadow-sm">
+                        <p class="text-body-md text-on-surface text-xs leading-relaxed">${cleanResponse}</p>
+                    </div>
+                `;
+            }
+            chatMessages.appendChild(wrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function handleSend() {
+            const val = chatInput.value.trim();
+            if (!val) return;
+            appendMessage(val, true);
+            chatInput.value = '';
+            
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: val, contextPage: 'complaint' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                appendMessage(data.response, false);
+            })
+            .catch(err => {
+                console.error(err);
+                appendMessage("I'm sorry, I'm having trouble connecting to the database server right now.", false);
+            });
+        }
+
+        sendBtn.addEventListener('click', handleSend);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+    </script>
+</body>
+</html>

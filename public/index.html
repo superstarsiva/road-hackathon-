@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Road Infrastructure Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#002113",
+                        "background": "#f7f9fb",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-secondary-container": "#00714d",
+                        "primary-container": "#0f4c81",
+                        "secondary-container": "#6cf8bb",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f2f4f6",
+                        "on-surface-variant": "#42474f",
+                        "inverse-primary": "#a0c9ff",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-bright": "#f7f9fb",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "tertiary-container": "#6a4100",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#07497d",
+                        "on-surface": "#191c1e",
+                        "surface-container-high": "#e6e8ea",
+                        "on-primary-container": "#8ebdf9",
+                        "outline": "#727780",
+                        "error-container": "#ffdad6",
+                        "on-background": "#191c1e",
+                        "surface-tint": "#2d6197",
+                        "primary-fixed": "#d2e4ff",
+                        "on-tertiary-container": "#ffa71e",
+                        "surface-dim": "#d8dadc",
+                        "primary": "#00355f",
+                        "on-primary-fixed": "#001c37",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-secondary-fixed-variant": "#005236",
+                        "tertiary": "#4b2d00",
+                        "surface": "#f7f9fb",
+                        "surface-variant": "#e0e3e5",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-primary": "#ffffff",
+                        "inverse-surface": "#2d3133",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "secondary": "#006c49",
+                        "primary-fixed-dim": "#a0c9ff",
+                        "tertiary-fixed": "#ffddb8",
+                        "outline-variant": "#c2c7d1",
+                        "surface-container": "#eceef0",
+                        "status-success": "#2e7d32",
+                        "status-warning": "#ed6c02"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "lg": "48px",
+                        "xl": "80px",
+                        "base": "8px",
+                        "sm": "12px",
+                        "margin-desktop": "40px",
+                        "xs": "4px",
+                        "md": "24px",
+                        "margin-mobile": "16px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "sans": ["Inter", "sans-serif"],
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f7f9fb;
+            color: #191c1e;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .hero-overlay {
+            background: linear-gradient(to right, rgba(0, 53, 95, 0.9) 0%, rgba(0, 53, 95, 0.6) 50%, transparent 100%);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <header class="bg-white/90 backdrop-blur-md border-b border-outline-variant sticky top-0 z-50">
+        <div class="flex justify-between items-center h-20 px-margin-desktop max-w-container-max mx-auto">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg">
+                    <span class="material-symbols-outlined text-white" data-icon="alt_route">alt_route</span>
+                </div>
+                <div class="font-headline-md text-headline-md text-primary uppercase tracking-tight">
+                    Road Portal
+                </div>
+            </div>
+            <nav class="hidden lg:flex items-center gap-xl">
+                <a class="text-body-md text-primary font-bold relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-full after:h-0.5 after:bg-primary" href="/">Home</a>
+                <a class="text-body-md text-on-surface-variant hover:text-primary transition-colors" href="/complaint">Road Complaint</a>
+                <a class="text-body-md text-on-surface-variant hover:text-primary transition-colors" href="/data">Road Data</a>
+                <a class="text-body-md text-on-surface-variant hover:text-primary transition-colors" href="/live">Live Quality</a>
+            </nav>
+            <div class="flex items-center gap-md">
+                <button class="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-label-md hover:bg-primary-container transition-all shadow-sm">Portal Login</button>
+            </div>
+        </div>
+    </header>
+    <main>
+        <!-- Hero Section with Glassmorphism -->
+        <section class="relative h-[640px] flex items-center overflow-hidden">
+            <div class="absolute inset-0 z-0">
+                <img alt="High quality road infrastructure" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8aVRA5C1ea0K-qBxKsbHamjeKGxnYIU2OsyadXg5bg2bQD-0X-t5ypSCmtRIcDGGt3KAZDIGVyJ382vpyB9AvLm7NlcYZ4vUbpBWT9d3oV0FrUMGKTFp7vJJ1xpP4jqic9l66b6xdh3Kz9b7_7P8U5ezqqd0XLmMRgheW7hGGKEesXhInuAYQz5nkzjONvYVQCzyB75ilpU5M667uIrTPROsKQTocWDwGQBvcMGD5T8tg13qbrHZwOv8xFttc5sLaiOUc1ZGHhE8"/>
+                <div class="absolute inset-0 hero-overlay"></div>
+            </div>
+            <div class="max-w-container-max mx-auto px-margin-desktop relative z-10 w-full">
+                <div class="max-w-2xl">
+                    <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white font-label-md px-4 py-1.5 mb-8 rounded-full">
+                        <span class="w-2 h-2 bg-secondary-fixed rounded-full animate-pulse"></span>
+                        TAMIL NADU HIGHWAYS & TRANSPORT DEPT
+                    </div>
+                    <h1 class="text-[56px] leading-[64px] font-extrabold text-white mb-6 tracking-tight">
+                        Chennai Road <span class="text-secondary-fixed">Transparency</span> for Every Citizen
+                    </h1>
+                    <p class="text-body-lg text-white/90 mb-10 leading-relaxed">
+                        Monitor road quality across Tamil Nadu, report infrastructure issues, and access real-time public maintenance information. Building safer roads for Chennai.
+                    </p>
+                    <div class="flex flex-wrap gap-md">
+                        <button onclick="location.href='/complaint'" class="bg-white text-primary px-8 py-4 rounded-xl font-headline-md flex items-center gap-3 hover:bg-surface-container-low transition-all shadow-lg group">
+                            <span class="material-symbols-outlined" data-icon="report_problem">report_problem</span>
+                            File a Complaint
+                        </button>
+                        <button onclick="location.href='/data'" class="bg-white/10 backdrop-blur-md border border-white/30 text-white px-8 py-4 rounded-xl font-headline-md flex items-center gap-3 hover:bg-white/20 transition-all">
+                            <span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                            Explore Data
+                        </button>
+                    </div>
+                </div>
+                <div class="absolute right-margin-desktop bottom-0 hidden xl:block">
+                    <div class="glass-panel p-6 rounded-t-2xl border-b-0 w-80">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-label-md text-primary font-bold">NETWORK STATUS</span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-2 h-2 bg-status-success rounded-full"></span>
+                                <span class="text-label-sm text-status-success font-bold">OPTIMAL</span>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="p-3 bg-primary/5 rounded-lg">
+                                <p class="text-label-sm text-on-surface-variant mb-1">Active Projects</p>
+                                <p class="text-headline-md text-primary">1,284</p>
+                            </div>
+                            <div class="p-3 bg-primary/5 rounded-lg">
+                                <p class="text-label-sm text-on-surface-variant mb-1">Resolution Rate</p>
+                                <p class="text-headline-md text-primary">94.2%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Public Services Section -->
+        <section class="py-xl max-w-container-max mx-auto px-margin-desktop">
+            <div class="flex flex-col items-center text-center mb-16">
+                <h2 class="text-display-lg text-primary mb-4">Public Services</h2>
+                <div class="h-1.5 w-20 bg-secondary-container rounded-full mb-6"></div>
+                <p class="text-body-lg text-on-surface-variant max-w-2xl">
+                    Dedicated tools and data portals for citizens to engage with local infrastructure management.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-2xl border border-outline-variant hover:border-primary-container hover:shadow-xl transition-all group">
+                    <div class="w-14 h-14 bg-surface-container-low text-primary flex items-center justify-center rounded-xl mb-8 group-hover:bg-primary group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-[32px]" data-icon="edit_note">edit_note</span>
+                    </div>
+                    <h3 class="text-headline-md text-primary mb-4">Road Complaint</h3>
+                    <p class="text-body-md text-on-surface-variant mb-8 leading-relaxed">
+                        Instant reporting for potholes, damages, or hazardous road conditions with photo uploads and GPS tracking.
+                    </p>
+                    <a class="inline-flex items-center gap-2 font-label-md text-primary group-hover:gap-3 transition-all" href="/complaint">
+                        SUBMIT REPORT
+                        <span class="material-symbols-outlined text-base" data-icon="arrow_forward">arrow_forward</span>
+                    </a>
+                </div>
+                <div class="bg-white p-8 rounded-2xl border border-outline-variant hover:border-primary-container hover:shadow-xl transition-all group">
+                    <div class="w-14 h-14 bg-surface-container-low text-primary flex items-center justify-center rounded-xl mb-8 group-hover:bg-primary group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-[32px]" data-icon="database">database</span>
+                    </div>
+                    <h3 class="text-headline-md text-primary mb-4">Road Data</h3>
+                    <p class="text-body-md text-on-surface-variant mb-8 leading-relaxed">
+                        Full transparency on contractor records, historical repair logs, and sanctioned budget allocations for every public road.
+                    </p>
+                    <a class="inline-flex items-center gap-2 font-label-md text-primary group-hover:gap-3 transition-all" href="/data">
+                        BROWSE DATA
+                        <span class="material-symbols-outlined text-base" data-icon="arrow_forward">arrow_forward</span>
+                    </a>
+                </div>
+                <div class="bg-white p-8 rounded-2xl border border-outline-variant hover:border-primary-container hover:shadow-xl transition-all group">
+                    <div class="w-14 h-14 bg-surface-container-low text-primary flex items-center justify-center rounded-xl mb-8 group-hover:bg-primary group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-[32px]" data-icon="sensors">sensors</span>
+                    </div>
+                    <h3 class="text-headline-md text-primary mb-4">Live Quality</h3>
+                    <p class="text-body-md text-on-surface-variant mb-8 leading-relaxed">
+                        Real-time road condition analysis using IoT sensors and crowd-sourced vehicle motion data for proactive maintenance.
+                    </p>
+                    <a class="inline-flex items-center gap-2 font-label-md text-primary group-hover:gap-3 transition-all" href="/live">
+                        VIEW LIVE FEED
+                        <span class="material-symbols-outlined text-base" data-icon="arrow_forward">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+        <!-- Transparency Section -->
+        <section class="bg-primary text-white py-xl relative overflow-hidden">
+            <div class="absolute right-0 bottom-0 opacity-5 pointer-events-none translate-x-1/4 translate-y-1/4">
+                <span class="material-symbols-outlined text-[600px]" data-icon="query_stats">query_stats</span>
+            </div>
+            <div class="max-w-container-max mx-auto px-margin-desktop relative z-10">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                    <div>
+                        <h2 class="text-display-lg mb-6 leading-tight">Transparency <br/>in Action</h2>
+                        <p class="text-body-lg text-primary-fixed mb-12 max-w-xl">
+                            We've digitized the entire infrastructure lifecycle. Every rupee allocated and every pothole reported is tracked in our public ledger until the work is verified by citizens.
+                        </p>
+                        <div class="grid grid-cols-2 gap-10">
+                            <div class="flex flex-col gap-2">
+                                <span class="text-[56px] font-extrabold text-secondary-fixed leading-none">4,200+</span>
+                                <span class="text-label-md uppercase tracking-wider text-primary-fixed/70">Resolved Issues</span>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <span class="text-[56px] font-extrabold text-secondary-fixed leading-none">12.8k</span>
+                                <span class="text-label-md uppercase tracking-wider text-primary-fixed/70">KM Surveyed</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-primary-container/40 backdrop-blur-md border border-white/10 p-8 rounded-2xl shadow-2xl">
+                        <div class="flex justify-between items-center mb-8">
+                            <h4 class="text-headline-md font-bold">Recent Updates</h4>
+                            <span class="text-label-sm bg-white/10 px-3 py-1 rounded-full border border-white/10">Live Feed</span>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex gap-4 p-5 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-colors group cursor-default">
+                                <div class="w-2 h-2 bg-status-success rounded-full mt-2 ring-4 ring-status-success/20"></div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <p class="font-bold text-label-md text-secondary-fixed">MAINTENANCE COMPLETE</p>
+                                        <span class="text-[10px] text-white/40">2H AGO</span>
+                                    </div>
+                                    <p class="text-body-md text-white/80">Anna Salai (NH-44-A): Repaving finalized 3 days ahead of schedule.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 p-5 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-colors group cursor-default">
+                                <div class="w-2 h-2 bg-status-warning rounded-full mt-2 ring-4 ring-status-warning/20"></div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <p class="font-bold text-label-md text-secondary-container">WORK IN PROGRESS</p>
+                                        <span class="text-[10px] text-white/40">5H AGO</span>
+                                    </div>
+                                    <p class="text-body-md text-white/80">GST Road (NH-08-C): Inspection and structural reinforcement phase near Tambaram.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 p-5 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-colors group cursor-default">
+                                <div class="w-2 h-2 bg-error rounded-full mt-2 ring-4 ring-error/20"></div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <p class="font-bold text-label-md text-error-container">BUDGET SANCTIONED</p>
+                                        <span class="text-[10px] text-white/40">YESTERDAY</span>
+                                    </div>
+                                    <p class="text-body-md text-white/80">OMR Phase II Upgrade: ₹12 Crore allocated for new smart-pavement rollout.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="location.href='/live'" class="w-full mt-8 py-3 text-label-md border border-white/20 rounded-xl hover:bg-white hover:text-primary transition-all">VIEW ALL ACTIVITY</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="bg-white border-t border-outline-variant py-xl">
+        <div class="max-w-container-max mx-auto px-margin-desktop">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-16">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 bg-primary flex items-center justify-center rounded">
+                            <span class="material-symbols-outlined text-white text-sm" data-icon="alt_route">alt_route</span>
+                        </div>
+                        <div class="font-headline-md text-primary uppercase tracking-tight text-xl">Road Portal</div>
+                    </div>
+                    <p class="text-body-md text-on-surface-variant max-w-xs mb-8">
+                        The official portal for infrastructure transparency and citizen engagement under the Government of Tamil Nadu, Chennai.
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 gap-8 lg:col-span-2">
+                    <div>
+                        <h4 class="text-label-md font-bold text-primary mb-6 uppercase tracking-widest">Resources</h4>
+                        <ul class="space-y-4">
+                            <li><a class="text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Emergency Contacts</a></li>
+                            <li><a class="text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Project Archives</a></li>
+                            <li><a class="text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Contractor Registry</a></li>
+                            <li><a class="text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Accessibility</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-label-md font-bold text-primary mb-6 uppercase tracking-widest">Legal</h4>
+                        <ul class="space-y-4">
+                            <li><a class="text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+                            <li><a class="text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a></li>
+                            <li><a class="text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Cookie Policy</a></li>
+                            <li><a class="text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Sitemap</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-label-sm text-on-surface-variant">© 2026 Tamil Nadu Highways & Minor Ports Dept. All rights reserved.</p>
+                <div class="flex gap-8">
+                    <span class="flex items-center gap-1.5 text-label-sm text-on-surface-variant">
+                        <span class="w-2 h-2 bg-status-success rounded-full animate-pulse"></span>
+                        System Online
+                    </span>
+                    <span class="text-label-sm text-on-surface-variant">v2.4.0-CivicModern</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating AI Assistant panel -->
+    <div class="fixed bottom-md right-md z-50 flex flex-col items-end" id="ai-chat-container">
+        <div class="hidden mb-4 w-[380px] h-[500px] bg-white/95 backdrop-blur-md border border-outline-variant rounded-xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform origin-bottom-right" id="chat-window">
+            <div class="bg-primary p-4 flex items-center justify-between text-on-primary">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px]">smart_toy</span>
+                    </div>
+                    <div>
+                        <p class="font-label-md leading-none">Road Support AI</p>
+                        <div class="flex items-center gap-1.5 mt-1">
+                            <span class="w-1.5 h-1.5 bg-secondary-fixed rounded-full"></span>
+                            <span class="text-[10px] text-white/70 uppercase tracking-wider">Online</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="material-symbols-outlined hover:bg-white/10 p-1 rounded-full" id="close-chat">close</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-surface-container-lowest" id="chat-messages">
+                <div class="flex gap-2 max-w-[85%]">
+                    <div class="w-8 h-8 bg-primary/10 text-primary rounded-full flex-shrink-0 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">smart_toy</span>
+                    </div>
+                    <div class="bg-surface-container-low p-3 rounded-2xl rounded-tl-none">
+                        <p class="text-body-md text-on-surface">வணக்கம்! I'm your Chennai Road Civic Assistant. How can I help you with Tamil Nadu road infrastructure today?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-outline-variant bg-white">
+                <div class="flex gap-2">
+                    <input class="w-full px-4 py-2.5 bg-surface-container-low border-none rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 outline-none" id="chat-input" placeholder="Type your message..." type="text"/>
+                    <button class="text-primary hover:scale-110 transition-transform p-2" id="send-chat-btn">
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <button class="w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-all" id="chat-toggle-btn">
+            <span class="material-symbols-outlined text-[28px]" id="chat-icon">forum</span>
+        </button>
+    </div>
+
+    <script>
+        const chatToggle = document.getElementById('chat-toggle-btn');
+        const chatWindow = document.getElementById('chat-window');
+        const closeChat = document.getElementById('close-chat');
+        const chatIcon = document.getElementById('chat-icon');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-chat-btn');
+
+        chatToggle.addEventListener('click', () => {
+            const isHidden = chatWindow.classList.contains('hidden');
+            if (isHidden) {
+                chatWindow.classList.remove('hidden');
+                chatIcon.textContent = 'close';
+            } else {
+                chatWindow.classList.add('hidden');
+                chatIcon.textContent = 'forum';
+            }
+        });
+
+        closeChat.addEventListener('click', () => {
+            chatWindow.classList.add('hidden');
+            chatIcon.textContent = 'forum';
+        });
+
+        function appendMessage(text, isUser) {
+            // Treat as html automatically
+            let cleanResponse = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code class="bg-primary/5 px-1 rounded font-mono font-bold">$1</code>')
+                .replace(/\n/g, '<br/>');
+
+            const wrapper = document.createElement('div');
+            wrapper.className = isUser ? 'flex flex-col items-end gap-1 w-full' : 'flex gap-2 max-w-[85%]';
+            
+            if (isUser) {
+                wrapper.innerHTML = `
+                    <div class="bg-primary text-white p-3 rounded-tl-xl rounded-b-xl max-w-[85%] self-end">
+                        <p class="font-body-sm text-xs leading-relaxed">${text}</p>
+                    </div>
+                `;
+            } else {
+                wrapper.innerHTML = `
+                    <div class="w-8 h-8 bg-primary/10 text-primary rounded-full flex-shrink-0 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">smart_toy</span>
+                    </div>
+                    <div class="bg-surface-container-low p-3 rounded-2xl rounded-tl-none border border-outline-variant shadow-sm">
+                        <p class="text-body-md text-on-surface text-xs leading-relaxed">${cleanResponse}</p>
+                    </div>
+                `;
+            }
+            chatMessages.appendChild(wrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function handleSend() {
+            const val = chatInput.value.trim();
+            if (!val) return;
+            appendMessage(val, true);
+            chatInput.value = '';
+            
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: val, contextPage: 'home' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                appendMessage(data.response, false);
+            })
+            .catch(err => {
+                console.error(err);
+                appendMessage("I'm sorry, I'm having trouble connecting to the database server right now.", false);
+            });
+        }
+
+        sendBtn.addEventListener('click', handleSend);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+    </script>
+</body>
+</html>

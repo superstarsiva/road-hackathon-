@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Live Road Quality Check | Road Infrastructure Portal</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    
+    <!-- Leaflet Maps integration -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-tertiary": "#ffffff",
+                "primary-fixed": "#d6e3ff",
+                "on-primary-fixed-variant": "#2d476f",
+                "on-tertiary-container": "#c6955e",
+                "on-tertiary-fixed": "#2b1700",
+                "surface-tint": "#455f88",
+                "on-secondary-container": "#586377",
+                "surface-container-lowest": "#ffffff",
+                "surface-alt": "#EDF2F7",
+                "on-error-container": "#93000a",
+                "surface-dim": "#d7dadc",
+                "inverse-on-surface": "#eef1f3",
+                "status-success": "#2F855A",
+                "outline-variant": "#c4c6cf",
+                "background": "#f7fafc",
+                "on-secondary": "#ffffff",
+                "tertiary-fixed-dim": "#f2bc82",
+                "surface-bright": "#f7fafc",
+                "on-surface-variant": "#43474e",
+                "inverse-primary": "#adc7f7",
+                "heritage-red": "#E31E2E",
+                "primary-fixed-dim": "#adc7f7",
+                "error-container": "#ffdad6",
+                "secondary": "#545f72",
+                "outline": "#74777f",
+                "tertiary": "#321b00",
+                "on-secondary-fixed-variant": "#3c475a",
+                "surface-variant": "#e0e3e5",
+                "on-background": "#181c1e",
+                "surface": "#f7fafc",
+                "secondary-container": "#d5e0f7",
+                "tertiary-fixed": "#ffddba",
+                "surface-container": "#ebeef0",
+                "on-tertiary-fixed-variant": "#633f0f",
+                "surface-container-high": "#e5e9eb",
+                "on-surface": "#181c1e",
+                "on-secondary-fixed": "#111c2c",
+                "on-primary-container": "#86a0cd",
+                "error": "#ba1a1a",
+                "surface-container-low": "#f1f4f6",
+                "status-warning": "#C05621",
+                "secondary-fixed-dim": "#bcc7dd",
+                "surface-container-highest": "#e0e3e5",
+                "inverse-surface": "#2d3133",
+                "primary-container": "#1a365d",
+                "tertiary-container": "#4f2e00",
+                "secondary-fixed": "#d8e3fa",
+                "ink-black": "#090909",
+                "on-error": "#ffffff",
+                "on-primary-fixed": "#001b3c",
+                "on-primary": "#ffffff",
+                "primary": "#002045"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "spacing": {
+                "container-max": "1280px",
+                "margin-mobile": "16px",
+                "margin-desktop": "40px",
+                "stack-sm": "8px",
+                "gutter": "24px",
+                "stack-md": "16px",
+                "stack-lg": "32px",
+                "section-gap": "64px"
+            },
+            "fontFamily": {
+                "label-md": ["Public Sans"],
+                "headline-md": ["Public Sans"],
+                "label-bold": ["Public Sans"],
+                "headline-xl": ["Public Sans"],
+                "headline-lg-mobile": ["Public Sans"],
+                "body-lg": ["Public Sans"],
+                "body-md": ["Public Sans"],
+                "body-sm": ["Public Sans"],
+                "headline-lg": ["Public Sans"]
+            },
+            "fontSize": {
+                "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "label-bold": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .monitor-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .3; }
+        }
+        .zebra-striping tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+        .spike-anim {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 0;
+        }
+        #live-map-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Neon pulsing threat pin indicator */
+        .pulsing-report-icon {
+            background: #ef4444;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
+            animation: marker-pulse 1.6s infinite;
+        }
+        
+        .pulsing-report-icon-med {
+            background: #f59e0b;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.8);
+            animation: marker-pulse-med 1.6s infinite;
+        }
+
+        .pulsing-report-icon-low {
+            background: #3b82f6;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.8);
+            animation: marker-pulse-low 1.6s infinite;
+        }
+
+        @keyframes marker-pulse {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        @keyframes marker-pulse-med {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.8); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        @keyframes marker-pulse-low {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.8); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        /* Glassmorphism details widget overlays */
+        .glass-legend {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background font-body-md text-on-background min-h-screen flex flex-col">
+    <!-- TopNavBar -->
+    <header class="bg-white border-b border-outline-variant sticky top-0 z-50">
+        <div class="flex justify-between items-center h-16 px-margin-desktop max-w-container-max mx-auto">
+            <div class="font-headline-md text-headline-md text-primary uppercase tracking-tight">
+                Road Infrastructure Portal
+            </div>
+            <nav class="hidden md:flex items-center gap-stack-lg h-full">
+                <a class="text-secondary hover:text-primary transition-colors font-body-md text-body-md" href="/">Home</a>
+                <a class="text-secondary hover:text-primary transition-colors font-body-md text-body-md" href="/complaint">Road Complaint</a>
+                <a class="text-secondary hover:text-primary transition-colors font-body-md text-body-md" href="/data">Road Data</a>
+                <a class="text-primary border-b-2 border-primary pb-1 font-bold font-body-md text-body-md" href="/live">Live Quality Check</a>
+            </nav>
+            <div class="flex items-center gap-stack-md">
+                <button class="text-primary font-label-bold text-label-bold uppercase px-4 py-2 border border-primary rounded" onclick="location.href='/complaint'">
+                    File Report
+                </button>
+            </div>
+        </div>
+    </header>
+    <main class="flex-grow max-w-container-max mx-auto w-full px-margin-desktop py-stack-lg">
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-end mb-stack-lg gap-stack-md">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="w-3 h-3 bg-status-success rounded-full monitor-pulse"></span>
+                    <span class="font-label-bold text-label-bold text-status-success uppercase">System Live: Active GIS Overlay</span>
+                </div>
+                <h1 class="font-headline-xl text-headline-xl text-primary">Live Quality Dashboard</h1>
+                <p class="font-body-lg text-body-lg text-secondary max-w-2xl mt-2">Real-time vibration analysis, pothole mapping, and surface temperature monitoring across the network.</p>
+            </div>
+            <div class="flex gap-stack-sm bg-white p-2 border border-outline-variant rounded">
+                <span class="text-xs text-secondary flex items-center gap-1.5"><span class="w-2.5 h-2.5 bg-status-success rounded-full"></span> Green: Optimal</span>
+                <span class="text-xs text-secondary flex items-center gap-1.5 ml-3"><span class="w-2.5 h-2.5 bg-status-warning rounded-full"></span> Yellow: Caution</span>
+                <span class="text-xs text-secondary flex items-center gap-1.5 ml-3"><span class="w-2.5 h-2.5 bg-heritage-red rounded-full"></span> Red: Critical</span>
+            </div>
+        </div>
+
+        <!-- Metric Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-gutter mb-stack-lg">
+            <!-- Score -->
+            <div class="bg-white border border-outline-variant p-stack-md rounded-lg flex flex-col justify-between">
+                <div>
+                    <span class="font-label-bold text-label-bold text-secondary uppercase block mb-1">Quality Score</span>
+                    <h2 class="font-headline-xl text-headline-xl text-status-success" id="avg-quality-score">84.2</h2>
+                </div>
+                <div class="mt-4 pt-4 border-t border-outline-variant flex items-center gap-2">
+                    <span class="material-symbols-outlined text-status-success">trending_up</span>
+                    <span class="font-body-sm text-body-sm text-secondary">State Target: 80+</span>
+                </div>
+            </div>
+            <!-- Temperature -->
+            <div class="bg-white border border-outline-variant p-stack-md rounded-lg flex flex-col justify-between">
+                <div>
+                    <span class="font-label-bold text-label-bold text-secondary uppercase block mb-1">Road Surface Temp</span>
+                    <h2 class="font-headline-xl text-headline-xl text-status-warning" id="temp-val">42.4<span class="text-body-md font-normal">°C</span></h2>
+                </div>
+                <div class="mt-4 pt-4 border-t border-outline-variant flex items-center gap-2">
+                    <span class="material-symbols-outlined text-status-warning">thermostat</span>
+                    <span class="font-body-sm text-body-sm text-secondary">Status: Moderate</span>
+                </div>
+            </div>
+            <!-- Potholes -->
+            <div class="bg-white border border-outline-variant p-stack-md rounded-lg flex flex-col justify-between">
+                <div>
+                    <span class="font-label-bold text-label-bold text-secondary uppercase block mb-1">Detections (24h)</span>
+                    <h2 class="font-headline-xl text-headline-xl text-heritage-red" id="active-potholes-count">4</h2>
+                </div>
+                <div class="mt-4 pt-4 border-t border-outline-variant flex items-center gap-2">
+                    <span class="material-symbols-outlined text-heritage-red">warning</span>
+                    <span class="font-body-sm text-body-sm text-secondary">Citizen reports mapping</span>
+                </div>
+            </div>
+            <!-- Vibration -->
+            <div class="bg-white border border-outline-variant p-stack-md rounded-lg flex flex-col justify-between">
+                <div>
+                    <span class="font-label-bold text-label-bold text-secondary uppercase block mb-1">Avg Vibration</span>
+                    <h2 class="font-headline-xl text-headline-xl text-primary" id="vibration-val">0.42 <span class="text-body-md font-normal">m/s²</span></h2>
+                </div>
+                <div class="mt-4 pt-4 border-t border-outline-variant flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">sensors</span>
+                    <span class="font-body-sm text-body-sm text-secondary">IoT Sensor Grid: OK</span>
+                </div>
+            </div>
+            <!-- Status -->
+            <div class="bg-white border border-outline-variant p-stack-md rounded-lg flex flex-col justify-between">
+                <div>
+                    <span class="font-label-bold text-label-bold text-secondary uppercase block mb-1">Current Status</span>
+                    <h2 class="font-headline-xl text-headline-xl text-status-success">GOOD</h2>
+                </div>
+                <div class="mt-4 pt-4 border-t border-outline-variant flex items-center gap-2">
+                    <span class="material-symbols-outlined text-status-success">check_circle</span>
+                    <span class="font-body-sm text-body-sm text-secondary">Within safety bounds</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Layout: Heatmap and Side Panel -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-stack-lg">
+            <!-- Heatmap Leaflet Map -->
+            <div class="lg:col-span-2 bg-white border border-outline-variant rounded-lg overflow-hidden flex flex-col h-[600px] z-10 relative">
+                <div class="p-stack-md border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+                    <h3 class="font-headline-md text-headline-md text-primary">Live Quality Map (Premium route glows)</h3>
+                    <div class="text-xs text-secondary font-mono">CartoDB Clean Tiles</div>
+                </div>
+                <div class="flex-grow relative bg-[#E5E3DF] z-0">
+                    <div id="live-map-container"></div>
+                    
+                    <!-- Glassmorphic Map Control Panel -->
+                    <div class="absolute top-4 right-4 z-[1000] p-4 rounded-lg glass-legend text-xs w-48 font-sans">
+                        <strong class="text-primary block mb-2 uppercase border-b border-outline-variant pb-1.5">Map Controls</strong>
+                        <label class="flex items-center gap-2 py-1 cursor-pointer">
+                            <input type="checkbox" id="layer-routes-checkbox" checked class="rounded border-outline-variant text-primary focus:ring-primary h-3.5 w-3.5"/>
+                            <span class="text-on-surface-variant font-medium">Highway Glow Overlays</span>
+                        </label>
+                        <label class="flex items-center gap-2 py-1 cursor-pointer">
+                            <input type="checkbox" id="layer-complaints-checkbox" checked class="rounded border-outline-variant text-primary focus:ring-primary h-3.5 w-3.5"/>
+                            <span class="text-on-surface-variant font-medium">Citizen Pulsing Pins</span>
+                        </label>
+                        <label class="flex items-center gap-2 py-1 cursor-pointer">
+                            <input type="checkbox" id="layer-radar-checkbox" checked class="rounded border-outline-variant text-primary focus:ring-primary h-3.5 w-3.5"/>
+                            <span class="text-on-surface-variant font-medium">IoT Sensor Radars</span>
+                        </label>
+                        
+                        <strong class="text-primary block mt-3 mb-1 uppercase border-b border-outline-variant pb-1">Regional Focus</strong>
+                        <div class="grid grid-cols-2 gap-1.5 mt-1.5 mb-2.5">
+                            <button onclick="zoomToRegion(13.0569, 80.2425, 'Anna Salai Corridor')" class="bg-surface-container hover:bg-primary-container hover:text-white transition-all text-on-surface-variant text-[9px] py-1 border border-outline-variant rounded font-bold uppercase select-none">Anna Salai</button>
+                            <button onclick="zoomToRegion(13.0418, 80.2341, 'T.Nagar Pondy Bazaar')" class="bg-surface-container hover:bg-primary-container hover:text-white transition-all text-on-surface-variant text-[9px] py-1 border border-outline-variant rounded font-bold uppercase select-none">T. Nagar</button>
+                            <button onclick="zoomToRegion(12.9631, 80.2188, 'OMR Perungudi Sector')" class="bg-surface-container hover:bg-primary-container hover:text-white transition-all text-on-surface-variant text-[9px] py-1 border border-outline-variant rounded font-bold uppercase select-none">OMR</button>
+                            <button onclick="zoomToRegion(12.9279, 80.2538, 'ECR Neelankarai')" class="bg-surface-container hover:bg-primary-container hover:text-white transition-all text-on-surface-variant text-[9px] py-1 border border-outline-variant rounded font-bold uppercase select-none">ECR</button>
+                        </div>
+
+                        <button onclick="recenterMap()" class="w-full bg-primary text-white py-1.5 rounded hover:bg-primary-container font-label-bold uppercase text-[10px]">
+                            RECENTER GIS
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Recent Detections List -->
+            <div class="bg-white border border-outline-variant rounded-lg flex flex-col h-[600px]">
+                <div class="p-stack-md border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+                    <h3 class="font-headline-md text-headline-md text-primary">Citizen Reports List</h3>
+                    <span class="bg-primary text-white text-[10px] px-2 py-0.5 rounded font-bold uppercase" id="total-reports-badge">4</span>
+                </div>
+                <div class="flex-grow overflow-y-auto">
+                    <table class="w-full text-left border-collapse zebra-striping">
+                        <thead class="bg-surface-alt font-label-bold text-label-bold uppercase text-secondary sticky top-0 text-[10px] tracking-wider border-b border-outline-variant">
+                            <tr>
+                                <th class="p-4">Location</th>
+                                <th class="p-4 text-center">Type</th>
+                                <th class="p-4 text-right">Severity</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs" id="detections-table-body">
+                            <!-- Dynamic content loading from API -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Dynamic active segment detail block inside side panel -->
+                <div class="p-4 border-t border-outline-variant bg-surface-container-low" id="active-zone-widget">
+                    <span class="font-label-bold text-label-bold text-primary block mb-2 uppercase tracking-wider border-b border-outline-variant pb-2">Active Segment Details</span>
+                    <div class="flex flex-col gap-2 text-xs" id="active-zone-details">
+                        <p class="text-secondary text-center py-4 select-none">Click any road segment or marker on the map to inspect live metrics.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Road Network Health Summary -->
+        <section class="mb-stack-lg">
+            <div class="bg-white border border-outline-variant rounded-lg p-stack-lg">
+                <div class="flex justify-between items-center mb-stack-md">
+                    <h3 class="font-headline-md text-headline-md text-primary">Chennai Road Network Health Summary</h3>
+                    <span class="text-[10px] bg-status-success text-white px-3 py-1 rounded font-bold uppercase monitor-pulse">Live Feed</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs zebra-striping">
+                        <thead class="bg-surface-alt font-label-bold text-label-bold uppercase text-secondary text-[10px] tracking-wider border-b border-outline-variant">
+                            <tr>
+                                <th class="p-3">Road / Corridor</th>
+                                <th class="p-3 text-center">Zone</th>
+                                <th class="p-3 text-center">Quality</th>
+                                <th class="p-3 text-center">Status</th>
+                                <th class="p-3 text-center">Temp</th>
+                                <th class="p-3 text-center">Traffic</th>
+                                <th class="p-3 text-center">Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody id="network-health-body" class="text-xs">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-primary border-t border-primary-container">
+        <div class="w-full py-stack-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-stack-md max-w-container-max mx-auto text-on-primary">
+            <div class="flex flex-col items-center md:items-start gap-2">
+                <div class="font-label-bold text-label-bold">Department of Transportation</div>
+                <p class="font-body-sm text-body-sm text-primary-fixed">© 2026 Department of Transportation and Infrastructure. All rights reserved.</p>
+            </div>
+            <nav class="flex flex-wrap justify-center gap-stack-md text-body-sm">
+                <a class="hover:text-white transition-colors underline font-bold" href="#">Emergency Contacts</a>
+                <a class="hover:text-white transition-colors" href="#">Privacy Policy</a>
+                <a class="hover:text-white transition-colors" href="#">Terms of Service</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Interactive Logic & Dynamic API Bindings -->
+    <script>
+        let map;
+        const defaultLat = 13.0827;
+        const defaultLng = 80.2707;
+        
+        let roadsData = [];
+        let complaintsData = [];
+        
+        // Leaflet Layer groups to allow toggle visibility
+        let routesLayerGroup;
+        let complaintsLayerGroup;
+        let radarLayerGroup;
+        
+        let activeRadarCircle;
+
+        // Initialize Map
+        function initLivePortal() {
+            // Leaflet Map Init - Centered on DC
+            map = L.map('live-map-container', {
+                zoomControl: true
+            }).setView([defaultLat, defaultLng], 13);
+            
+            // CartoDB Voyager Tile Layer - Pastel high-contrast aesthetic suitable for civic dashboard mapping
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors, © CartoDB'
+            }).addTo(map);
+
+            // Create Layer Groups
+            routesLayerGroup = L.layerGroup().addTo(map);
+            complaintsLayerGroup = L.layerGroup().addTo(map);
+            radarLayerGroup = L.layerGroup().addTo(map);
+
+            // Bind checkbox controls to toggle layers
+            document.getElementById('layer-routes-checkbox').addEventListener('change', function(e) {
+                if (e.target.checked) map.addLayer(routesLayerGroup);
+                else map.removeLayer(routesLayerGroup);
+            });
+            document.getElementById('layer-complaints-checkbox').addEventListener('change', function(e) {
+                if (e.target.checked) map.addLayer(complaintsLayerGroup);
+                else map.removeLayer(complaintsLayerGroup);
+            });
+            document.getElementById('layer-radar-checkbox').addEventListener('change', function(e) {
+                if (e.target.checked) map.addLayer(radarLayerGroup);
+                else map.removeLayer(radarLayerGroup);
+            });
+
+            // Fetch and render data
+            fetchRoads();
+            fetchComplaints();
+            startLiveSimulations();
+        }
+
+        // Recenters the Map View
+        function recenterMap() {
+            map.setView([defaultLat, defaultLng], 12);
+            if (activeRadarCircle) {
+                radarLayerGroup.removeLayer(activeRadarCircle);
+                activeRadarCircle = null;
+            }
+        }
+
+        // Global flag for manual telemetry trigger
+        let forceSpikeTrigger = false;
+        function triggerSimulatedPotholeSpike() { forceSpikeTrigger = true; }
+
+        // Zoom to region WITHOUT dropping radar circle (that was causing the strange pointer)
+        function zoomToRegion(lat, lng, regionName) {
+            map.setView([lat, lng], 15);
+            // Update side panel details for context
+            updateSideWidget({
+                title: regionName,
+                id: 'REGION-ZOOM-GIS',
+                quality: 'Scanning...',
+                qualityColor: 'text-primary font-bold',
+                temp: 'Syncing telemetry...',
+                tempColor: 'text-secondary font-bold',
+                vibration: 'Reading sensors...',
+                contractor: 'Interactive GIS tracking focused on ' + regionName + '. Click any road for live data.',
+                authority: 'District Operations Center',
+                flow: 'Monitoring'
+            });
+        }
+
+        // Fetch Road Inventory Segments
+        function fetchRoads() {
+            fetch('/api/roads')
+                .then(res => res.json())
+                .then(roads => {
+                    roadsData = roads;
+                    renderRoadsOnMap();
+                })
+                .catch(err => console.error('Error fetching roads:', err));
+        }
+
+        // Fetch Citizen Complaints
+        function fetchComplaints() {
+            fetch('/api/complaints')
+                .then(res => res.json())
+                .then(complaints => {
+                    complaintsData = complaints;
+                    renderComplaints();
+                })
+                .catch(err => console.error('Error fetching complaints:', err));
+        }
+
+        // Render Color Coded Road Segments + Extra Chennai random roads
+        function renderRoadsOnMap() {
+            routesLayerGroup.clearLayers();
+
+            // ── Extra Chennai roads with random quality scores ──────────────
+            const extraRoads = [
+                { name: 'Poonamallee High Road', coords: [[13.0828, 80.2185], [13.0852, 80.2100], [13.0875, 80.2010], [13.0890, 80.1920], [13.0902, 80.1830]], score: 55 },
+                { name: 'Arcot Road (Vadapalani)', coords: [[13.0490, 80.2120], [13.0510, 80.2050], [13.0528, 80.1980], [13.0540, 80.1900]], score: 38 },
+                { name: 'TTK Road (Alwarpet)', coords: [[13.0302, 80.2460], [13.0318, 80.2410], [13.0332, 80.2360]], score: 78 },
+                { name: 'Kamarajar Salai (Marina)', coords: [[13.0594, 80.2814], [13.0680, 80.2828], [13.0770, 80.2840], [13.0860, 80.2845]], score: 91 },
+                { name: 'Sardar Patel Road (Guindy)', coords: [[13.0088, 80.2190], [13.0110, 80.2230], [13.0135, 80.2270]], score: 45 },
+                { name: 'Jawaharlal Nehru Road (Perambur)', coords: [[13.1040, 80.2460], [13.1060, 80.2510], [13.1080, 80.2560]], score: 83 },
+                { name: 'Velachery Main Road', coords: [[12.9760, 80.2120], [12.9780, 80.2160], [12.9800, 80.2200], [12.9820, 80.2240]], score: 29 },
+                { name: '100 Feet Road (Vadapalani)', coords: [[13.0490, 80.2080], [13.0530, 80.2060], [13.0570, 80.2040]], score: 68 },
+                { name: 'LB Road (Adyar)', coords: [[12.9990, 80.2540], [13.0010, 80.2570], [13.0030, 80.2600]], score: 72 },
+                { name: 'Rajaji Salai (George Town)', coords: [[13.0870, 80.2840], [13.0890, 80.2800], [13.0910, 80.2760]], score: 54 },
+                { name: 'Peters Road (Royapettah)', coords: [[13.0560, 80.2590], [13.0545, 80.2555], [13.0530, 80.2520]], score: 88 },
+                { name: 'Kodambakkam High Road', coords: [[13.0478, 80.2350], [13.0500, 80.2280], [13.0522, 80.2210], [13.0540, 80.2140]], score: 42 },
+                { name: 'Nungambakkam High Road', coords: [[13.0590, 80.2430], [13.0610, 80.2390], [13.0628, 80.2350]], score: 76 },
+                { name: 'Greams Road (Thousand Lights)', coords: [[13.0620, 80.2540], [13.0640, 80.2510], [13.0658, 80.2480]], score: 90 },
+                { name: 'Sterling Road (Nungambakkam)', coords: [[13.0638, 80.2390], [13.0655, 80.2360], [13.0670, 80.2330]], score: 35 },
+                { name: 'Dr Ambedkar Road (Vyasarpadi)', coords: [[13.1120, 80.2610], [13.1140, 80.2650], [13.1160, 80.2700]], score: 61 },
+                { name: 'Avadi Road (Ambattur)', coords: [[13.1150, 80.1720], [13.1180, 80.1680], [13.1210, 80.1640]], score: 47 },
+                { name: 'Medavakkam Main Road', coords: [[12.9250, 80.1910], [12.9280, 80.1940], [12.9310, 80.1970]], score: 82 },
+                { name: 'Pallavaram-Thoraipakkam Road', coords: [[12.9680, 80.2020], [12.9710, 80.2060], [12.9740, 80.2100], [12.9770, 80.2140]], score: 23 },
+                { name: 'Sholinganallur Main Road', coords: [[12.9002, 80.2280], [12.9030, 80.2310], [12.9060, 80.2340]], score: 66 },
+                { name: 'Rajiv Gandhi IT Expressway Slip', coords: [[12.9800, 80.2250], [12.9830, 80.2290], [12.9860, 80.2330]], score: 94 },
+                { name: 'Koyambedu - CMBT Road', coords: [[13.0688, 80.1980], [13.0710, 80.2010], [13.0732, 80.2040]], score: 57 }
+            ];
+
+            // Combine DB roads and extra roads for rendering
+            const allRoads = [
+                ...roadsData.map(r => ({ name: r.name, coords: r.coordinates, score: r.qualityScore, isDB: true, road: r })),
+                ...extraRoads.map(r => ({ name: r.name, coords: r.coords, score: r.score, isDB: false }))
+            ];
+
+            allRoads.forEach(item => {
+                let strokeColor = '#10b981'; // green
+                if (item.score < 50) strokeColor = '#f43f5e'; // red
+                else if (item.score < 85) strokeColor = '#fbbf24'; // yellow
+
+                const polylineGlow = L.polyline(item.coords, {
+                    color: strokeColor, weight: 12, opacity: 0.25, lineCap: 'round', lineJoin: 'round'
+                }).addTo(routesLayerGroup);
+
+                const polylineInner = L.polyline(item.coords, {
+                    color: strokeColor, weight: 4, opacity: 0.9, lineCap: 'round', lineJoin: 'round'
+                }).addTo(routesLayerGroup);
+
+                const grade = item.score >= 85 ? 'Good' : item.score >= 50 ? 'Caution' : 'Critical';
+                const popupContent = '<div style="min-width:190px;font-family:sans-serif;padding:4px"><strong style="color:#002045;font-size:12px;display:block;border-bottom:1px solid #eee;padding-bottom:4px;margin-bottom:6px">' + item.name + '</strong>' +
+                    '<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0"><span style="color:#555">Quality Score:</span><strong style="color:' + strokeColor + '">' + item.score + '/100 (' + grade + ')</strong></div>' +
+                    (item.isDB ? '<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0"><span style="color:#555">Authority:</span><strong>' + item.road.authority + '</strong></div>' +
+                    '<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0"><span style="color:#555">Traffic:</span><strong>' + item.road.flow + '</strong></div>' : '') +
+                    '</div>';
+
+                polylineInner.bindPopup(popupContent);
+                polylineGlow.bindPopup(popupContent);
+
+                const highlightRoute = () => { polylineInner.setStyle({ weight: 7, opacity: 1 }); polylineGlow.setStyle({ weight: 18, opacity: 0.4 }); };
+                const resetRoute = () => { polylineInner.setStyle({ weight: 4, opacity: 0.9 }); polylineGlow.setStyle({ weight: 12, opacity: 0.25 }); };
+
+                polylineInner.on('mouseover', highlightRoute);
+                polylineInner.on('mouseout', resetRoute);
+                polylineGlow.on('mouseover', highlightRoute);
+                polylineGlow.on('mouseout', resetRoute);
+
+                const focusClick = (e) => {
+                    if (item.isDB) {
+                        const road = item.road;
+                        updateSideWidget({
+                            title: road.name, id: road.id,
+                            quality: road.qualityScore + '/100',
+                            qualityColor: road.qualityScore >= 85 ? 'text-status-success' : road.qualityScore >= 50 ? 'text-status-warning' : 'text-heritage-red',
+                            temp: road.surfaceTemp + '\u00b0C',
+                            tempColor: road.surfaceTemp > 40 ? 'text-status-warning' : 'text-secondary',
+                            vibration: road.vibration + ' m/s\u00b2',
+                            contractor: road.contractor,
+                            authority: road.authority,
+                            flow: road.flow
+                        });
+                    } else {
+                        updateSideWidget({
+                            title: item.name, id: 'EXTRA-ROAD',
+                            quality: item.score + '/100',
+                            qualityColor: item.score >= 85 ? 'text-status-success' : item.score >= 50 ? 'text-status-warning' : 'text-heritage-red',
+                            temp: (35 + Math.random() * 10).toFixed(1) + '\u00b0C',
+                            tempColor: 'text-secondary',
+                            vibration: (0.2 + Math.random() * 0.9).toFixed(2) + ' m/s\u00b2',
+                            contractor: 'Tamil Nadu PWD',
+                            authority: 'Greater Chennai Corporation',
+                            flow: item.score >= 85 ? 'Optimal' : item.score >= 50 ? 'Moderate' : 'Congested'
+                        });
+                    }
+                    // Radar circle only on road click (not on zoom buttons)
+                    if (activeRadarCircle) radarLayerGroup.removeLayer(activeRadarCircle);
+                    activeRadarCircle = L.circle(e.latlng, {
+                        color: strokeColor, fillColor: strokeColor,
+                        fillOpacity: 0.15, radius: 120, weight: 2
+                    }).addTo(radarLayerGroup);
+                    map.setView(e.latlng, 15);
+                };
+
+                polylineInner.on('click', focusClick);
+                polylineGlow.on('click', focusClick);
+            });
+
+            if (roadsData.length > 0) {
+                const avg = (roadsData.reduce((a, r) => a + r.qualityScore, 0) / roadsData.length).toFixed(1);
+                document.getElementById('avg-quality-score').innerText = avg;
+            }
+        }
+
+        // Render Complaints as Pulsing Markers
+        function renderComplaints() {
+            // Clear existing markers
+            complaintsLayerGroup.clearLayers();
+
+            // Update count displays
+            document.getElementById('total-reports-badge').innerText = complaintsData.length;
+            document.getElementById('active-potholes-count').innerText = complaintsData.filter(c => c.issueType.includes('Pothole')).length;
+
+            // Load table body
+            const tableBody = document.getElementById('detections-table-body');
+            tableBody.innerHTML = '';
+
+            complaintsData.forEach(complaint => {
+                // Style pulsing markers based on Severity
+                let markerClassName = 'pulsing-report-icon-med';
+                if (complaint.severity === 'High') markerClassName = 'pulsing-report-icon';
+                else if (complaint.severity === 'Low') markerClassName = 'pulsing-report-icon-low';
+
+                const pulsingIcon = L.divIcon({
+                    className: markerClassName,
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
+                });
+
+                // Drop pulsing pin on Leaflet Map
+                const pin = L.marker([complaint.latitude, complaint.longitude], {
+                    icon: pulsingIcon
+                }).addTo(complaintsLayerGroup);
+                
+                // Detailed popup styling
+                pin.bindPopup(`
+                    <div class="p-2 min-w-[200px] font-sans">
+                        <strong class="text-heritage-red text-xs block uppercase tracking-wider mb-1">${complaint.issueType}</strong>
+                        <strong class="text-primary text-sm block mb-1">${complaint.roadName}</strong>
+                        <p class="text-xs text-secondary mb-2">${complaint.description}</p>
+                        <div class="flex justify-between text-xs py-0.5 border-t border-outline-variant pt-2">
+                            <span class="text-secondary">Tracking ID:</span>
+                            <strong class="font-mono text-primary">${complaint.id}</strong>
+                        </div>
+                        <div class="flex justify-between text-xs py-0.5">
+                            <span class="text-secondary">Severity:</span>
+                            <span class="font-bold text-${complaint.severity === 'High' ? 'heritage-red' : complaint.severity === 'Med' ? 'status-warning' : 'secondary'}">${complaint.severity}</span>
+                        </div>
+                        <div class="flex justify-between text-xs py-0.5">
+                            <span class="text-secondary">Status:</span>
+                            <span class="font-bold text-primary">${complaint.status}</span>
+                        </div>
+                    </div>
+                `);
+
+                // Marker click updates side widget
+                pin.on('click', function(e) {
+                    updateSideWidget({
+                        title: complaint.roadName,
+                        id: complaint.id,
+                        quality: complaint.issueType,
+                        qualityColor: 'text-heritage-red font-bold',
+                        temp: `Status: ${complaint.status}`,
+                        tempColor: 'text-primary font-bold',
+                        vibration: `Severity: ${complaint.severity}`,
+                        contractor: complaint.description,
+                        authority: `Report Date: ${complaint.date}`,
+                        flow: 'Citizen Report'
+                    });
+
+                    // Drop matching radar circle
+                    if (activeRadarCircle) {
+                        radarLayerGroup.removeLayer(activeRadarCircle);
+                    }
+                    let strokeColor = '#fbbf24';
+                    if (complaint.severity === 'High') strokeColor = '#f43f5e';
+                    else if (complaint.severity === 'Low') strokeColor = '#3b82f6';
+
+                    activeRadarCircle = L.circle(e.latlng, {
+                        color: strokeColor,
+                        fillColor: strokeColor,
+                        fillOpacity: 0.1,
+                        radius: 80,
+                        weight: 1.5
+                    }).addTo(radarLayerGroup);
+
+                    map.setView(e.latlng, 15);
+                });
+
+                // Add to Side Table
+                const row = document.createElement('tr');
+                row.className = 'cursor-pointer hover:bg-surface-alt transition-colors';
+                
+                // Color code severity badge
+                let sevBadge = `<span class="bg-surface-container-highest text-secondary px-2 py-0.5 rounded text-[10px] font-bold uppercase">Low</span>`;
+                if (complaint.severity === 'High') {
+                    sevBadge = `<span class="bg-error-container text-on-error-container px-2 py-0.5 rounded text-[10px] font-bold uppercase">High</span>`;
+                } else if (complaint.severity === 'Med') {
+                    sevBadge = `<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded text-[10px] font-bold uppercase">Med</span>`;
+                }
+
+                let locShortName = complaint.roadName;
+                if (locShortName.length > 20) locShortName = locShortName.substring(0, 18) + '...';
+
+                row.innerHTML = `
+                    <td class="p-4 border-b border-outline-variant font-bold">${locShortName}</td>
+                    <td class="p-4 border-b border-outline-variant text-center text-[10px] font-semibold text-primary select-none">${complaint.issueType.split(' ')[0]}</td>
+                    <td class="p-4 border-b border-outline-variant text-right">${sevBadge}</td>
+                `;
+
+                // Table row click focuses map to marker
+                row.addEventListener('click', () => {
+                    pin.fire('click');
+                });
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Side panel inspector widget updating helper
+        function updateSideWidget(data) {
+            const widget = document.getElementById('active-zone-details');
+            widget.innerHTML = `
+                <div class="flex flex-col gap-2">
+                    <div class="flex justify-between gap-8"><span class="text-secondary font-medium">Name:</span><strong class="text-right text-primary">${data.title}</strong></div>
+                    <div class="flex justify-between gap-8"><span class="text-secondary font-medium">Segment/Ref ID:</span><strong class="font-mono text-right">${data.id}</strong></div>
+                    <div class="flex justify-between gap-8"><span class="text-secondary font-medium">Quality Rating:</span><strong class="${data.qualityColor} text-right">${data.quality}</strong></div>
+                    <div class="flex justify-between gap-8"><span class="text-secondary font-medium">Surface/State:</span><strong class="${data.tempColor} text-right">${data.temp}</strong></div>
+                    <div class="flex justify-between gap-8"><span class="text-secondary font-medium">Vibration/Severity:</span><strong class="text-right text-primary">${data.vibration}</strong></div>
+                    <div class="flex justify-between gap-8"><span class="text-secondary font-medium">Authority:</span><strong class="text-right text-secondary">${data.authority}</strong></div>
+                    <div class="flex justify-between gap-8"><span class="text-secondary font-medium">Flow/Type:</span><strong class="text-right">${data.flow}</strong></div>
+                    <div class="mt-2 pt-2 border-t border-outline-variant"><span class="text-secondary font-medium block mb-1">Contractor / Details:</span><p class="text-on-surface leading-relaxed">${data.contractor || 'N/A'}</p></div>
+                </div>
+            `;
+        }
+
+        // Real-Time Live Simulations
+        function startLiveSimulations() {
+            // Live temperature fluctuations
+            setInterval(() => {
+                const tempVal = document.getElementById('temp-val');
+                if (tempVal) tempVal.innerHTML = `${(42.4 + (Math.random()-0.5)*0.4).toFixed(1)}<span class="text-body-md font-normal">\u00b0C</span>`;
+            }, 3000);
+
+            // Live vibration fluctuations
+            setInterval(() => {
+                const vib = document.getElementById('vibration-val');
+                if (vib) vib.innerHTML = `${(0.42 + (Math.random()-0.5)*0.08).toFixed(2)} <span class="text-body-md font-normal">m/s\u00b2</span>`;
+            }, 2000);
+
+            // Road Network Health Table
+            populateHealthTable();
+            setInterval(populateHealthTable, 8000);
+        }
+
+        function populateHealthTable() {
+            const tbody = document.getElementById('network-health-body');
+            if (!tbody) return;
+            const roads = [
+                { name: 'Anna Salai (Mount Road)', zone: 'Central', score: 94, temp: 38.1, traffic: 'Optimal' },
+                { name: 'East Coast Road (ECR)', zone: 'South Coastal', score: 62, temp: 42.4, traffic: 'Caution' },
+                { name: 'Rajiv Gandhi Salai (OMR)', zone: 'South IT', score: 88, temp: 36.5, traffic: 'Optimal' },
+                { name: 'GST Road (Grand Southern Trunk)', zone: 'South-West', score: 41, temp: 46.2, traffic: 'Congested' },
+                { name: 'Poonamallee High Road', zone: 'West', score: 55, temp: 39.8, traffic: 'Moderate' },
+                { name: 'Arcot Road (Vadapalani)', zone: 'West', score: 38, temp: 44.1, traffic: 'Congested' },
+                { name: 'Kamarajar Salai (Marina)', zone: 'East Coastal', score: 91, temp: 37.2, traffic: 'Optimal' },
+                { name: 'Velachery Main Road', zone: 'South', score: 29, temp: 47.5, traffic: 'Congested' },
+                { name: 'Nungambakkam High Road', zone: 'Central-North', score: 76, temp: 38.9, traffic: 'Moderate' },
+                { name: 'Greams Road (Thousand Lights)', zone: 'Central', score: 90, temp: 37.8, traffic: 'Optimal' },
+                { name: 'Kodambakkam High Road', zone: 'West-Central', score: 42, temp: 43.5, traffic: 'Congested' },
+                { name: 'Pallavaram-Thoraipakkam Road', zone: 'South', score: 23, temp: 49.1, traffic: 'Critical' },
+                { name: 'Medavakkam Main Road', zone: 'South', score: 82, temp: 38.2, traffic: 'Moderate' },
+                { name: 'LB Road (Adyar)', zone: 'South Central', score: 72, temp: 39.6, traffic: 'Moderate' },
+                { name: 'Sardar Patel Road (Guindy)', zone: 'South-West', score: 45, temp: 43.9, traffic: 'Congested' },
+                { name: 'Sholinganallur Main Road', zone: 'South IT', score: 66, temp: 40.3, traffic: 'Moderate' },
+                { name: 'Rajiv Gandhi IT Expressway', zone: 'South IT', score: 94, temp: 36.0, traffic: 'Optimal' },
+                { name: 'JN Road (Perambur)', zone: 'North', score: 83, temp: 38.7, traffic: 'Moderate' },
+                { name: 'Avadi Road (Ambattur)', zone: 'North-West', score: 47, temp: 42.8, traffic: 'Congested' },
+                { name: 'TTK Road (Alwarpet)', zone: 'South Central', score: 78, temp: 39.1, traffic: 'Moderate' },
+                { name: 'Peters Road (Royapettah)', zone: 'Central', score: 88, temp: 37.5, traffic: 'Optimal' },
+                { name: 'Koyambedu CMBT Road', zone: 'West', score: 57, temp: 41.2, traffic: 'Moderate' }
+            ];
+            tbody.innerHTML = roads.map(r => {
+                const s = Math.min(100, Math.max(5, r.score + Math.floor((Math.random()-0.5)*4)));
+                const t = (r.temp + (Math.random()-0.5)*0.6).toFixed(1);
+                const grade = s >= 85 ? 'GOOD' : s >= 50 ? 'CAUTION' : 'CRITICAL';
+                const scoreClr = s >= 85 ? '#2F855A' : s >= 50 ? '#C05621' : '#E31E2E';
+                const badgeCls = s >= 85 ? 'background:#dcfce7;color:#166534' : s >= 50 ? 'background:#fef9c3;color:#854d0e' : 'background:#fee2e2;color:#991b1b';
+                const trafficClr = r.traffic === 'Optimal' ? '#2F855A' : r.traffic === 'Critical' ? '#E31E2E' : r.traffic === 'Congested' ? '#E31E2E' : '#C05621';
+                const ago = Math.floor(Math.random()*55)+5;
+                return `<tr class="hover:bg-surface-alt transition-colors">
+                    <td class="p-3 border-b border-outline-variant font-semibold">${r.name}</td>
+                    <td class="p-3 border-b border-outline-variant text-center text-secondary text-[11px]">${r.zone}</td>
+                    <td class="p-3 border-b border-outline-variant text-center font-bold" style="color:${scoreClr}">${s}/100</td>
+                    <td class="p-3 border-b border-outline-variant text-center"><span style="${badgeCls};padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700">${grade}</span></td>
+                    <td class="p-3 border-b border-outline-variant text-center text-secondary">${t}\u00b0C</td>
+                    <td class="p-3 border-b border-outline-variant text-center font-semibold" style="color:${trafficClr}">${r.traffic}</td>
+                    <td class="p-3 border-b border-outline-variant text-center text-secondary">${ago}s ago</td>
+                </tr>`;
+            }).join('');
+        }
+
+        window.onload = initLivePortal;
+    </script>
+
+    <!-- AI Assistant Floating Panel -->
+    <div class="fixed bottom-8 right-8 z-[100] flex flex-col items-end" id="ai-chat-container">
+        <div class="hidden mb-4 w-[380px] h-[500px] bg-white/95 backdrop-blur-md border border-outline-variant rounded-xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform origin-bottom-right" id="chat-window">
+            <div class="bg-primary p-4 flex items-center justify-between text-on-primary">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px]">smart_toy</span>
+                    </div>
+                    <div>
+                        <p class="font-label-md leading-none text-white">Road Support AI</p>
+                        <div class="flex items-center gap-1.5 mt-1">
+                            <span class="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+                            <span class="text-[10px] text-white/70 uppercase tracking-wider">Online</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="material-symbols-outlined hover:bg-white/10 p-1 rounded-full text-white" id="close-chat">close</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-surface-container-lowest" id="chat-messages">
+                <div class="flex gap-2 max-w-[85%]">
+                    <div class="w-8 h-8 bg-primary/10 text-primary rounded-full flex-shrink-0 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">smart_toy</span>
+                    </div>
+                    <div class="bg-surface-container-low p-3 rounded-2xl rounded-tl-none border border-outline-variant shadow-sm text-xs">
+                        <p class="text-body-md text-on-surface">வணக்கம்! I'm your Chennai Road Civic Assistant. I can check live sensor data, inspect highway quality scores, track citizen complaints, and help you navigate Chennai road infrastructure. How can I help?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-outline-variant bg-white">
+                <div class="flex gap-2">
+                    <input class="w-full px-4 py-2.5 bg-surface-container-low border-none rounded-lg text-xs focus:ring-2 focus:ring-primary/20 outline-none" id="chat-input" placeholder="Ask about road complaints or road quality..." type="text"/>
+                    <button class="text-primary hover:scale-110 transition-transform p-2" id="send-chat-btn">
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <button class="w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-all text-white" id="chat-toggle-btn">
+            <span class="material-symbols-outlined text-[28px]" id="chat-icon">forum</span>
+        </button>
+    </div>
+
+    <script>
+        const chatToggle = document.getElementById('chat-toggle-btn');
+        const chatWindow = document.getElementById('chat-window');
+        const closeChat = document.getElementById('close-chat');
+        const chatIcon = document.getElementById('chat-icon');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-chat-btn');
+
+        chatToggle.addEventListener('click', () => {
+            const isHidden = chatWindow.classList.contains('hidden');
+            if (isHidden) {
+                chatWindow.classList.remove('hidden');
+                chatIcon.textContent = 'close';
+            } else {
+                chatWindow.classList.add('hidden');
+                chatIcon.textContent = 'forum';
+            }
+        });
+
+        closeChat.addEventListener('click', () => {
+            chatWindow.classList.add('hidden');
+            chatIcon.textContent = 'forum';
+        });
+
+        function appendMessage(text, isUser) {
+            let cleanResponse = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code class="bg-primary/5 px-1 rounded font-mono font-bold">$1</code>')
+                .replace(/\n/g, '<br/>');
+
+            const wrapper = document.createElement('div');
+            wrapper.className = isUser ? 'flex flex-col items-end gap-1 w-full' : 'flex gap-2 max-w-[85%]';
+            
+            if (isUser) {
+                wrapper.innerHTML = `
+                    <div class="bg-primary text-white p-3 rounded-tl-xl rounded-b-xl max-w-[85%] self-end">
+                        <p class="font-body-sm text-xs leading-relaxed">${text}</p>
+                    </div>
+                `;
+            } else {
+                wrapper.innerHTML = `
+                    <div class="w-8 h-8 bg-primary/10 text-primary rounded-full flex-shrink-0 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">smart_toy</span>
+                    </div>
+                    <div class="bg-surface-container-low p-3 rounded-2xl rounded-tl-none border border-outline-variant shadow-sm">
+                        <p class="text-body-md text-on-surface text-xs leading-relaxed">${cleanResponse}</p>
+                    </div>
+                `;
+            }
+            chatMessages.appendChild(wrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function handleSend() {
+            const val = chatInput.value.trim();
+            if (!val) return;
+            appendMessage(val, true);
+            chatInput.value = '';
+            
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: val, contextPage: 'live' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                appendMessage(data.response, false);
+            })
+            .catch(err => {
+                console.error(err);
+                appendMessage("I'm sorry, I'm having trouble connecting to the database server right now.", false);
+            });
+        }
+
+        sendBtn.addEventListener('click', handleSend);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+    </script>
+</body>
+</html>
